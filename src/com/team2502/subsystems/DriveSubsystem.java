@@ -158,6 +158,23 @@ public class DriveSubsystem extends Subsystem {
 		return true;
 	}
 	
+	/**
+	 * This is a convenience method, so that it is easy to make the robot move
+	 * based on a joystick. This is where the joystick drives the robot in a way
+	 * that it is able to strafe left/right as well as being able to move forward
+	 * and turn.
+	 * @param joy The joystick to use for driving
+	 */
+	public final boolean driveMecanum(Joystick left, Joystick right) {
+		if (isTraction)
+			return false;
+		double yMove = -left.getY();
+		double xMove = left.getX();
+		double zRot = right.getX();
+		driveIndependent(yMove+zRot+xMove, yMove-zRot-xMove, yMove+zRot-xMove, yMove-zRot+xMove);
+		return true;
+	}
+	
 	public final boolean isMovingSideways() {
 		double percentage = .1;
 		double left = Math.abs(frontLeft.get() + backLeft.get()) / 2;
@@ -173,6 +190,8 @@ public class DriveSubsystem extends Subsystem {
 	}
 	
 	public final boolean switchToTraction() {
+		if (isTraction)
+			return true;
 		if (isMovingSideways())
 			return false;
 		isTraction = true;

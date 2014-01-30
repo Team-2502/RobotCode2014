@@ -19,13 +19,17 @@ public class DriveWithJoystick extends CommandBase {
 	
 	protected void execute() {
 		if (driveSubsystem.isTraction()) {
-			if (OI.TANK_DRIVE) {
+			if (OI.JOYSTICK_COUNT == 2) {
 				driveSubsystem.driveTank(OI.joyDriveLeft, OI.joyDriveRight);
 			} else {
 				driveSubsystem.driveArcade(OI.joyArcade);
 			}
 		} else {
-			driveSubsystem.driveMecanum(OI.joyArcade);
+			if (OI.JOYSTICK_COUNT == 2) {
+				driveSubsystem.driveMecanum(OI.joyDriveLeft, OI.joyDriveRight);
+			} else {
+				driveSubsystem.driveMecanum(OI.joyArcade);
+			}
 		}
 	}
 	

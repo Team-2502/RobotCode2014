@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.Joystick;
 
 public class OI {
 	
-	public static final boolean TANK_DRIVE = true;
+	public static final int JOYSTICK_COUNT = 2;
 	public static Joystick joyArcade;
 	public static Joystick joyDriveLeft;
 	public static Joystick joyDriveRight;
