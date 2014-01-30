@@ -5,9 +5,10 @@ import edu.wpi.first.wpilibj.Joystick;
 
 public class OI {
 	
-	private static Joystick joyArcade;
-	private static Joystick joyDriveLeft;
-	private static Joystick joyDriveRight;
+	public static final boolean TANK_DRIVE = true;
+	public static Joystick joyArcade;
+	public static Joystick joyDriveLeft;
+	public static Joystick joyDriveRight;
 	
 	public static void init() {
 		joyArcade = new Joystick(RobotMap.JOYSTICK_ARCADE_PORT);

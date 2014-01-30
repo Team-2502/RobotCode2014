@@ -11,34 +11,34 @@ import com.team2502.commands.CommandBase;
 
 public class Robot extends IterativeRobot {
 	
-    Command autonomousCommand;
+	private Command autonomousCommand;
 	
-    public void robotInit() {
+	public void robotInit() {
 		autonomousCommand = new AutonomousCommand();
 		
         // Initialize all subsystems
 		OI.init();
-        CommandBase.init();
+		CommandBase.init();
 		BlackBoxProtocol.start(new String[]{"10.25.2.15","10.25.2.10","10.25.2.20"}, 1180, 25);
     }
 	
-    public void autonomousInit() {
-        autonomousCommand.start();
-    }
+	public void autonomousInit() {
+		autonomousCommand.start();
+	}
 	
-    public void autonomousPeriodic() {
-        Scheduler.getInstance().run();
-    }
-
-    public void teleopInit() {
-        autonomousCommand.cancel();
-    }
-
-    public void teleopPeriodic() {
-        Scheduler.getInstance().run();
-    }
-    
-    public void testPeriodic() {
-        LiveWindow.run();
-    }
+	public void autonomousPeriodic() {
+		Scheduler.getInstance().run();
+	}
+	
+	public void teleopInit() {
+		autonomousCommand.cancel();
+	}
+	
+	public void teleopPeriodic() {
+		Scheduler.getInstance().run();
+	}
+	
+	public void testPeriodic() {
+		LiveWindow.run();
+	}
 }
