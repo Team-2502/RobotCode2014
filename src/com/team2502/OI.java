@@ -6,13 +6,13 @@ import edu.wpi.first.wpilibj.Joystick;
 public class OI {
 	
 	public static final int JOYSTICK_COUNT = 2;
-	public static Joystick joyArcade;
 	public static Joystick joyDriveLeft;
 	public static Joystick joyDriveRight;
 	
 	public static void init() {
-		joyArcade = new Joystick(RobotMap.JOYSTICK_ARCADE_PORT);
-		joyDriveLeft = new Joystick(RobotMap.JOYSTICK_DRIVE_LEFT_PORT);
+		if (JOYSTICK_COUNT >= 2)
+			joyDriveLeft = new Joystick(RobotMap.JOYSTICK_DRIVE_LEFT_PORT);
+		// I want this joystick to be the one that is the constant drive joystick
 		joyDriveRight = new Joystick(RobotMap.JOYSTICK_DRIVE_RIGHT_PORT);
 	}
 	

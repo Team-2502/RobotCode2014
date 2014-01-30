@@ -22,13 +22,13 @@ public class DriveWithJoystick extends CommandBase {
 			if (OI.JOYSTICK_COUNT == 2) {
 				driveSubsystem.driveTank(OI.joyDriveLeft, OI.joyDriveRight);
 			} else {
-				driveSubsystem.driveArcade(OI.joyArcade);
+				driveSubsystem.driveArcade(OI.joyDriveRight);
 			}
 		} else {
 			if (OI.JOYSTICK_COUNT == 2) {
 				driveSubsystem.driveMecanum(OI.joyDriveLeft, OI.joyDriveRight);
 			} else {
-				driveSubsystem.driveMecanum(OI.joyArcade);
+				driveSubsystem.driveMecanum(OI.joyDriveRight);
 			}
 		}
 	}
