@@ -42,11 +42,12 @@ public class ShooterSubsystem extends Subsystem {
 
 	}
 
+	@Deprecated
 	public void moveToPosition(double position) throws CANTimeoutException {
 		targetPosition = position;
-		if (targetPosition < getWinchPosition())
+		if (targetPosition < getWinchProgress())
 			moveWinchDown();
-		else if (targetPosition > getWinchPosition())
+		else if (targetPosition > getWinchProgress())
 			moveWinchUp();
 		else
 			stopWinch();
@@ -81,8 +82,8 @@ public class ShooterSubsystem extends Subsystem {
 		return latch.get();
 	}
 
-	public double getWinchPosition() throws CANTimeoutException {
-		return (winch.getPosition() - bottomWinchPosition) / topWinchPosition;
+	public double getWinchProgress() throws CANTimeoutException {
+		return  1 - (winch.getPosition() - bottomWinchPosition) / topWinchPosition;
 	}
 
 	public void activateLatch() {
