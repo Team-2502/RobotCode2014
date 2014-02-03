@@ -21,9 +21,6 @@ public class ShooterSubsystem extends Subsystem {
 	private static final double LOADED_THRESHOLD = 0;  // Analog trigger threshold 
 	private static final double WINCH_SPEED = 1;  // Winch speed (between -1 and 1)
 	private CANJaguar winch;
-	private Encoder winchEncoder;
-	private DigitalInput limitSwitchUp;
-	private DigitalInput limitSwitchDown;
 	private Solenoid latch;
 	private AnalogChannel loadedSensor;
 	private Compressor compressor;
@@ -32,15 +29,8 @@ public class ShooterSubsystem extends Subsystem {
 	private double bottomWinchPosition = 0;
 	private double targetPosition;
 
-	public ShooterSubsystem() {
-		try {
-			winch = new CANJaguar(RobotMap.WINCH_CAN_PORT);
-		} catch (CANTimeoutException e) {
-			BlackBoxProtocol.log(e.toString());
-		}
-		winchEncoder = new Encoder(RobotMap.SHOOTER_WINCH_ENCODER_A, RobotMap.SHOOTER_WINCH_ENCODER_B);
-		limitSwitchUp = new DigitalInput(RobotMap.SHOOTER_LIMIT_SWITCH_UP);
-		limitSwitchDown = new DigitalInput(RobotMap.SHOOTER_LIMIT_SWITCH_DOWN);
+	public ShooterSubsystem() throws CANTimeoutException {
+		winch = new CANJaguar(RobotMap.SHOOTER_WINCH_CAN_PORT);
 		latch = new Solenoid(RobotMap.SHOOTER_LATCH);
 		loadedSensor = new AnalogChannel(RobotMap.SHOOTER_LOADED_SENSOR);
 		compressor = new Compressor(RobotMap.COMPRESSOR_SWITCH, RobotMap.COMPRESSOR_RELAY);
@@ -52,7 +42,7 @@ public class ShooterSubsystem extends Subsystem {
 
 	}
 
-	public void moveToPosition(double position) {
+	public void moveToPosition(double position) throws CANTimeoutException {
 		targetPosition = position;
 		if (targetPosition < getWinchPosition())
 			moveWinchDown();
@@ -62,43 +52,25 @@ public class ShooterSubsystem extends Subsystem {
 			stopWinch();
 	}
 
-	public void moveWinchDown() {
-		if (!isDown())
-			try {
-				winch.setX(-WINCH_SPEED);
-			} catch (CANTimeoutException e) {
-				BlackBoxProtocol.log(e.toString());
-			}
-		else
-			stopWinch();
+	public void moveWinchDown() throws CANTimeoutException {
+		winch.setX(-WINCH_SPEED);
 	}
 
-	public void moveWinchUp() {
-		if (!isUp())
-			try {
-				winch.setX(WINCH_SPEED);
-			} catch (CANTimeoutException e) {
-				BlackBoxProtocol.log(e.toString());
-			}
-		else
-			stopWinch();
+	public void moveWinchUp() throws CANTimeoutException {
+		winch.setX(WINCH_SPEED);
 	}
 
-	public void stopWinch() {
-		try {
-			winch.setX(0);
-			winch.disableControl();
-		} catch (CANTimeoutException e) {
-			BlackBoxProtocol.log(e.toString());
-		}
+	public void stopWinch() throws CANTimeoutException {
+		winch.setX(0);
+		winch.disableControl();
 	}
 
-	public boolean isDown() {
-		return limitSwitchDown.get();
+	public boolean isDown() throws CANTimeoutException {
+		return !winch.getReverseLimitOK();
 	}
 
-	public boolean isUp() {
-		return limitSwitchUp.get();
+	public boolean isUp() throws CANTimeoutException {
+		return !winch.getForwardLimitOK();
 	}
 
 	public boolean isLoaded() {
@@ -109,8 +81,8 @@ public class ShooterSubsystem extends Subsystem {
 		return latch.get();
 	}
 
-	public double getWinchPosition() {
-		return (winchEncoder.getDistance() - bottomWinchPosition) / topWinchPosition;
+	public double getWinchPosition() throws CANTimeoutException {
+		return (winch.getPosition() - bottomWinchPosition) / topWinchPosition;
 	}
 
 	public void activateLatch() {
@@ -121,12 +93,12 @@ public class ShooterSubsystem extends Subsystem {
 		latch.set(false);
 	}
 
-	public void setCurrentEncoderPositionAsBottom() {
-		bottomWinchPosition = winchEncoder.getDistance();
+	public void setCurrentEncoderPositionAsBottom() throws CANTimeoutException {
+		bottomWinchPosition = winch.getPosition();
 	}
 
-	public void setCurrentEncoderPositionAsTop() {
-		topWinchPosition = winchEncoder.getDistance();
+	public void setCurrentEncoderPositionAsTop() throws CANTimeoutException {
+		topWinchPosition = winch.getPosition();
 	}
 
 }
