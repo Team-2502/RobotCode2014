@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.team2502.subsystems;
 
 import com.team2502.RobotMap;
@@ -9,6 +6,7 @@ import edu.wpi.first.wpilibj.AnalogChannel;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.command.Subsystem;
 
@@ -17,76 +15,99 @@ import edu.wpi.first.wpilibj.command.Subsystem;
  *
  */
 public class ShooterSubsystem extends Subsystem {
-	
+
 	private static final double LOADED_THRESHOLD = 0;  // Analog trigger threshold 
-	//TODO winch control
+	private static final double WINCH_SPEED = 1;  // Winch speed (between -1 and 1)
+	private Jaguar winch;
 	private Encoder winchEncoder;
 	private DigitalInput limitSwitchUp;
 	private DigitalInput limitSwitchDown;
 	private Solenoid latch;
 	private AnalogChannel loadedSensor;
 	private Compressor compressor;
-	
+
+	private double topWinchPosition = 1;
+	private double bottomWinchPosition = 0;
+	private double targetPosition;
+
 	public ShooterSubsystem() {
-		winchEncoder = new Encoder(RobotMap.SHOOTER_WINCH_ENCODER_ONE, RobotMap.SHOOTER_WINCH_ENCODER_TWO);
+		winchEncoder = new Encoder(RobotMap.SHOOTER_WINCH_ENCODER_A, RobotMap.SHOOTER_WINCH_ENCODER_B);
 		limitSwitchUp = new DigitalInput(RobotMap.SHOOTER_LIMIT_SWITCH_UP);
 		limitSwitchDown = new DigitalInput(RobotMap.SHOOTER_LIMIT_SWITCH_DOWN);
 		latch = new Solenoid(RobotMap.SHOOTER_LATCH);
 		loadedSensor = new AnalogChannel(RobotMap.SHOOTER_LOADED_SENSOR);
-		compressor = new Compressor(RobotMap.COMPRESSOR_PORT_ONE, RobotMap.COMPRESSOR_PORT_TWO);
+		compressor = new Compressor(RobotMap.COMPRESSOR_SWITCH, RobotMap.COMPRESSOR_RELAY);
+		compressor.start();
 	}
 
 	@Override
 	protected void initDefaultCommand() {
-		
+
 	}
-	
-	public void moveWinchDistance(double distance) {
-		//TODO winch control
+
+	public void moveToPosition(double position) {
+		targetPosition = position;
+		if (targetPosition < getWinchPosition())
+			moveWinchDown();
+		else if (targetPosition > getWinchPosition())
+			moveWinchUp();
+		else
+			stopWinch();
 	}
-	
+
 	public void moveWinchDown() {
-		//TODO winch control
+		if (!isDown())
+			winch.set(-WINCH_SPEED);
+		else
+			stopWinch();
 	}
-	
+
 	public void moveWinchUp() {
-		//TODO winch control
+		if (!isUp())
+			winch.set(WINCH_SPEED);
+		else
+			stopWinch();
 	}
-	
+
+	public void stopWinch() {
+		winch.set(0);
+		winch.stopMotor();
+	}
+
 	public boolean isDown() {
 		return limitSwitchDown.get();
 	}
-	
+
 	public boolean isUp() {
 		return limitSwitchUp.get();
 	}
-	
+
 	public boolean isLoaded() {
 		return (loadedSensor.getVoltage() > LOADED_THRESHOLD);
 	}
-	
+
 	public boolean isLatched() {
 		return latch.get();
 	}
-	
+
 	public double getWinchPosition() {
-		return winchEncoder.getDistance();
+		return (winchEncoder.getDistance() - bottomWinchPosition) / topWinchPosition;
 	}
-	
+
 	public void activateLatch() {
 		latch.set(true);
 	}
-	
+
 	public void deactivateLatch() {
 		latch.set(false);
 	}
-	
-	public void resetEncoderPosition() {
-		winchEncoder.reset();
+
+	public void setCurrentEncoderPositionAsBottom() {
+		bottomWinchPosition = winchEncoder.getDistance();
 	}
-	
+
 	public void setCurrentEncoderPositionAsTop() {
-		//TODO I need to figure out how to do this.
+		topWinchPosition = winchEncoder.getDistance();
 	}
 
 }

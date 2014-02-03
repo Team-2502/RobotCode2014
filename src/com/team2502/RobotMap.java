@@ -12,14 +12,14 @@ public class RobotMap {
 	public static final int DRIVE_BACK_RIGHT     = 4; // PWM
 	public static final int DRIVE_TRAIN_SWITCHER = 1; // Solenoid
 	
-	public static final int SHOOTER_WINCH_ENCODER_ONE = 1; // Encoder
-	public static final int SHOOTER_WINCH_ENCODER_TWO = 2; // Encoder
+	public static final int SHOOTER_WINCH_ENCODER_A = 1; // Encoder
+	public static final int SHOOTER_WINCH_ENCODER_B = 2; // Encoder
 	public static final int SHOOTER_LIMIT_SWITCH_UP   = 1; // Limit switch
 	public static final int SHOOTER_LIMIT_SWITCH_DOWN = 2; // Limit switch
 	public static final int SHOOTER_LATCH             = 1; // Solenoid
 	public static final int SHOOTER_LOADED_SENSOR     = 1; // Analog (IR?)
 	
-	public static final int COMPRESSOR_PORT_ONE = 1; // Compressor
-	public static final int COMPRESSOR_PORT_TWO = 2; // Compressor
+	public static final int COMPRESSOR_SWITCH = 1; // Compressor
+	public static final int COMPRESSOR_RELAY = 2; // Compressor
 	
 }
