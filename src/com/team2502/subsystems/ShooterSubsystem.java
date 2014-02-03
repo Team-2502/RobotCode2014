@@ -1,13 +1,15 @@
 package com.team2502.subsystems;
 
 import com.team2502.RobotMap;
+import com.team2502.black_box.BlackBoxProtocol;
 
 import edu.wpi.first.wpilibj.AnalogChannel;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.Jaguar;
+import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.can.CANTimeoutException;
 import edu.wpi.first.wpilibj.command.Subsystem;
 
 /**
@@ -18,7 +20,7 @@ public class ShooterSubsystem extends Subsystem {
 
 	private static final double LOADED_THRESHOLD = 0;  // Analog trigger threshold 
 	private static final double WINCH_SPEED = 1;  // Winch speed (between -1 and 1)
-	private Jaguar winch;
+	private CANJaguar winch;
 	private Encoder winchEncoder;
 	private DigitalInput limitSwitchUp;
 	private DigitalInput limitSwitchDown;
@@ -31,6 +33,11 @@ public class ShooterSubsystem extends Subsystem {
 	private double targetPosition;
 
 	public ShooterSubsystem() {
+		try {
+			winch = new CANJaguar(RobotMap.WINCH_CAN_PORT);
+		} catch (CANTimeoutException e) {
+			BlackBoxProtocol.log(e.toString());
+		}
 		winchEncoder = new Encoder(RobotMap.SHOOTER_WINCH_ENCODER_A, RobotMap.SHOOTER_WINCH_ENCODER_B);
 		limitSwitchUp = new DigitalInput(RobotMap.SHOOTER_LIMIT_SWITCH_UP);
 		limitSwitchDown = new DigitalInput(RobotMap.SHOOTER_LIMIT_SWITCH_DOWN);
@@ -57,21 +64,33 @@ public class ShooterSubsystem extends Subsystem {
 
 	public void moveWinchDown() {
 		if (!isDown())
-			winch.set(-WINCH_SPEED);
+			try {
+				winch.setX(-WINCH_SPEED);
+			} catch (CANTimeoutException e) {
+				BlackBoxProtocol.log(e.toString());
+			}
 		else
 			stopWinch();
 	}
 
 	public void moveWinchUp() {
 		if (!isUp())
-			winch.set(WINCH_SPEED);
+			try {
+				winch.setX(WINCH_SPEED);
+			} catch (CANTimeoutException e) {
+				BlackBoxProtocol.log(e.toString());
+			}
 		else
 			stopWinch();
 	}
 
 	public void stopWinch() {
-		winch.set(0);
-		winch.stopMotor();
+		try {
+			winch.setX(0);
+			winch.disableControl();
+		} catch (CANTimeoutException e) {
+			BlackBoxProtocol.log(e.toString());
+		}
 	}
 
 	public boolean isDown() {

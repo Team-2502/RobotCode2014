@@ -22,4 +22,6 @@ public class RobotMap {
 	public static final int COMPRESSOR_SWITCH = 1; // Compressor
 	public static final int COMPRESSOR_RELAY = 2; // Compressor
 	
+	public static final int WINCH_CAN_PORT = 1;  // CAN Jaguar
+	
 }
