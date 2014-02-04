@@ -2,8 +2,6 @@ package com.team2502.commands.shooter;
 
 import com.team2502.commands.CommandBase;
 
-import edu.wpi.first.wpilibj.command.CommandGroup;
-
 /**
  * @author Jackson Turner
  *
