@@ -29,12 +29,25 @@ public class ShooterSubsystem extends Subsystem {
 	private double bottomWinchPosition = 0;
 	private double targetPosition;
 
-	public ShooterSubsystem() throws CANTimeoutException {
-		winch = new CANJaguar(RobotMap.SHOOTER_WINCH_CAN_PORT);
+	public ShooterSubsystem() {
+		initalizeCAMJaguar();
 		latch = new Solenoid(RobotMap.SHOOTER_LATCH);
 		loadedSensor = new AnalogChannel(RobotMap.SHOOTER_LOADED_SENSOR);
 		compressor = new Compressor(RobotMap.COMPRESSOR_SWITCH, RobotMap.COMPRESSOR_RELAY);
 		compressor.start();
+	}
+
+	private void initalizeCAMJaguar() {
+		boolean retry = true;
+		while (retry) {
+			try {
+				winch = new CANJaguar(RobotMap.SHOOTER_WINCH_CAN_PORT);
+				retry = false;
+			} catch (CANTimeoutException e){
+				BlackBoxProtocol.log("CAN-Jaguar initilization failed: " + e.toString());
+				retry = true;
+			}
+		}
 	}
 
 	@Override
@@ -43,7 +56,7 @@ public class ShooterSubsystem extends Subsystem {
 	}
 
 	@Deprecated
-	public void moveToPosition(double position) throws CANTimeoutException {
+	public void moveToPosition(double position) {
 		targetPosition = position;
 		if (targetPosition < getWinchProgress())
 			moveWinchDown();
@@ -53,25 +66,64 @@ public class ShooterSubsystem extends Subsystem {
 			stopWinch();
 	}
 
-	public void moveWinchDown() throws CANTimeoutException {
-		winch.setX(-WINCH_SPEED);
+	public void moveWinchDown() {
+		boolean retry = true;
+		while (retry) {
+			try {
+				winch.setX(-WINCH_SPEED);
+				retry = false;
+			} catch (CANTimeoutException e){
+				BlackBoxProtocol.log("CAN-Jaguar initilization failed: " + e.toString());
+			}
+		}
 	}
 
-	public void moveWinchUp() throws CANTimeoutException {
-		winch.setX(WINCH_SPEED);
+	public void moveWinchUp() {
+		boolean retry = true;
+		while (retry) {
+			try {
+				winch.setX(WINCH_SPEED);
+				retry = false;
+			} catch (CANTimeoutException e){
+				BlackBoxProtocol.log("CAN-Jaguar initilization failed: " + e.toString());
+			}
+		}
 	}
 
-	public void stopWinch() throws CANTimeoutException {
-		winch.setX(0);
-		winch.disableControl();
+	public void stopWinch() {
+		boolean retry = true;
+		while (retry) {
+			try {
+				winch.setX(0);
+				retry = false;
+			} catch (CANTimeoutException e){
+				BlackBoxProtocol.log("CAN-Jaguar initilization failed: " + e.toString());
+			}
+		}
 	}
 
-	public boolean isDown() throws CANTimeoutException {
-		return !winch.getReverseLimitOK();
+	public boolean isDown() {
+		boolean retry = true;
+		while (retry) {
+			try {
+				return !winch.getReverseLimitOK();
+			} catch (CANTimeoutException e){
+				BlackBoxProtocol.log("CAN-Jaguar initilization failed: " + e.toString());
+			}
+		}
+		return false;
 	}
 
-	public boolean isUp() throws CANTimeoutException {
-		return !winch.getForwardLimitOK();
+	public boolean isUp() {
+		boolean retry = true;
+		while (retry) {
+			try {
+				return !winch.getForwardLimitOK();
+			} catch (CANTimeoutException e){
+				BlackBoxProtocol.log("CAN-Jaguar initilization failed: " + e.toString());
+			}
+		}
+		return false;
 	}
 
 	public boolean isLoaded() {
@@ -82,8 +134,16 @@ public class ShooterSubsystem extends Subsystem {
 		return latch.get();
 	}
 
-	public double getWinchProgress() throws CANTimeoutException {
-		return  1 - (winch.getPosition() - bottomWinchPosition) / topWinchPosition;
+	public double getWinchProgress() {
+		boolean retry = true;
+		while (retry) {
+			try {
+				return  1 - (winch.getPosition() - bottomWinchPosition) / topWinchPosition;
+			} catch (CANTimeoutException e){
+				BlackBoxProtocol.log("CAN-Jaguar initilization failed: " + e.toString());
+			}
+		}
+		return 0;
 	}
 
 	public void activateLatch() {
@@ -94,12 +154,28 @@ public class ShooterSubsystem extends Subsystem {
 		latch.set(false);
 	}
 
-	public void setCurrentEncoderPositionAsBottom() throws CANTimeoutException {
-		bottomWinchPosition = winch.getPosition();
+	public void setCurrentEncoderPositionAsBottom() {
+		boolean retry = true;
+		while (retry) {
+			try {
+				bottomWinchPosition = winch.getPosition();
+				retry = false;
+			} catch (CANTimeoutException e){
+				BlackBoxProtocol.log("CAN-Jaguar initilization failed: " + e.toString());
+			}
+		}
 	}
 
-	public void setCurrentEncoderPositionAsTop() throws CANTimeoutException {
-		topWinchPosition = winch.getPosition();
+	public void setCurrentEncoderPositionAsTop() {
+		boolean retry = true;
+		while (retry) {
+			try {
+				topWinchPosition = winch.getPosition();
+				retry = false;
+			} catch (CANTimeoutException e){
+				BlackBoxProtocol.log("CAN-Jaguar initilization failed: " + e.toString());
+			}
+		}
 	}
 
 }
