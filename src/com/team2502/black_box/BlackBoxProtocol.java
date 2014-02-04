@@ -1,7 +1,5 @@
 package com.team2502.black_box;
 
-import edu.wpi.first.wpilibj.communication.ModulePresence;
-import edu.wpi.first.wpilibj.communication.ModulePresence.ModuleType;
 import java.io.IOException;
 import java.io.OutputStream;
 import javax.microedition.io.Connector;
