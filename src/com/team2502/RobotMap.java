@@ -12,4 +12,13 @@ public class RobotMap {
 	public static final int DRIVE_BACK_RIGHT     = 4; // PWM
 	public static final int DRIVE_TRAIN_SWITCHER = 1; // Solenoid
 	
+	public static final int SHOOTER_LIMIT_SWITCH_UP   = 1; // Limit switch
+	public static final int SHOOTER_LIMIT_SWITCH_DOWN = 2; // Limit switch
+	public static final int SHOOTER_LATCH             = 1; // Solenoid
+	public static final int SHOOTER_LOADED_SENSOR     = 1; // Analog (IR?)
+	public static final int SHOOTER_WINCH_CAN_PORT = 1;  // CAN Jaguar
+	
+	public static final int COMPRESSOR_SWITCH = 1; // Compressor
+	public static final int COMPRESSOR_RELAY = 2; // Compressor
+	
 }
