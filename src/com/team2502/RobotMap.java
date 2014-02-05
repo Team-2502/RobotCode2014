@@ -21,4 +21,10 @@ public class RobotMap {
 	public static final int COMPRESSOR_SWITCH = 1; // Compressor
 	public static final int COMPRESSOR_RELAY = 2; // Compressor
 	
+	public static final int COLLECTOR_PISTON_PORT = 1; // Solenoid
+	public static final int COLLECTOR_SENSOR_ONE_PORT = 1; // Analog (IR?)
+	public static final int COLLECTOR_SENSOR_TWO_PORT = 2; // Analog (IR?)
+	public static final int COLLECTOR_UP_LIMIT = 1; // Limit Switch
+	public static final int COLLECTOR_DOWN_LIMIT = 2;  // Limit Switch
+	
 }
