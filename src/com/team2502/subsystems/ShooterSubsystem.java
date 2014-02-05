@@ -28,14 +28,14 @@ public class ShooterSubsystem extends Subsystem {
 	private double targetPosition;
 
 	public ShooterSubsystem() {
-		initalizeCAMJaguar();
+		initalizeCANJaguar();
 		latch = new Solenoid(RobotMap.SHOOTER_LATCH);
 		loadedSensor = new AnalogChannel(RobotMap.SHOOTER_LOADED_SENSOR);
 		compressor = new Compressor(RobotMap.COMPRESSOR_SWITCH, RobotMap.COMPRESSOR_RELAY);
 		compressor.start();
 	}
 
-	private void initalizeCAMJaguar() {
+	private void initalizeCANJaguar() {
 		boolean retry = true;
 		while (retry) {
 			try {
@@ -43,7 +43,6 @@ public class ShooterSubsystem extends Subsystem {
 				retry = false;
 			} catch (CANTimeoutException e){
 				BlackBoxProtocol.log("CAN-Jaguar initilization failed: " + e.toString());
-				retry = true;
 			}
 		}
 	}
