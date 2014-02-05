@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.team2502.subsystems;
 
 import com.team2502.RobotMap;
