@@ -50,7 +50,7 @@ public class CollectorSubsystem extends Subsystem {
 	public boolean isForkliftUp() {
 		return upLimitSwitch.get();
 	}
-	
+
 	public boolean isForkliftDown() {
 		return downLimitSwitch.get();
 	}
