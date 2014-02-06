@@ -34,13 +34,11 @@ public class CollectorSubsystem extends Subsystem {
 	}
 
 	public void moveCollectorDown() {
-		if (isForkliftUp())
-			collectorPiston.set(true);
+		collectorPiston.set(true);
 	}
 
 	public void moveCollectorUp() {
-		if (isForkliftDown())
-			collectorPiston.set(false);
+		collectorPiston.set(false);
 	}
 
 	public boolean isBallInCollector() {
