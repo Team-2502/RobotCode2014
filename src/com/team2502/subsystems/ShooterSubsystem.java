@@ -46,13 +46,11 @@ public class ShooterSubsystem extends Subsystem {
 			}
 		}
 	}
-
-	@Override
+	
 	protected void initDefaultCommand() {
 
 	}
-
-	@Deprecated
+	
 	public void moveToPosition(double position) {
 		targetPosition = position;
 		if (targetPosition < getWinchProgress())

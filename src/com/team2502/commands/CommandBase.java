@@ -3,7 +3,6 @@ package com.team2502.commands;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import com.sun.java.swing.plaf.windows.WindowsTreeUI.CollapsedIcon;
 import com.team2502.OI;
 import com.team2502.subsystems.CollectorSubsystem;
 import com.team2502.subsystems.DriveSubsystem;

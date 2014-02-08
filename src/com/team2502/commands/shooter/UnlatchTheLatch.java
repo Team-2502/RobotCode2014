@@ -11,28 +11,23 @@ public class UnlatchTheLatch extends CommandBase {
 	public UnlatchTheLatch() {
 		requires(shooterSubsystem);
 	}
-
-	@Override
+	
 	protected void end() {
 
 	}
-
-	@Override
+	
 	protected void execute() {
 
 	}
-
-	@Override
+	
 	protected void initialize() {
 		shooterSubsystem.deactivateLatch();
 	}
-
-	@Override
+	
 	protected void interrupted() {
 		end();
 	}
-
-	@Override
+	
 	protected boolean isFinished() {
 		return true;
 	}

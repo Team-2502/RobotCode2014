@@ -11,8 +11,7 @@ public class MoveForkliftDown extends CommandBase {
 	public MoveForkliftDown() {
 		requires(collectorSubsystem);
 	}
-
-	@Override
+	
 	protected void end() {
 
 	}
@@ -20,18 +19,15 @@ public class MoveForkliftDown extends CommandBase {
 	protected void execute() {
 
 	}
-
-	@Override
+	
 	protected void initialize() {
 		collectorSubsystem.moveCollectorDown();
 	}
-
-	@Override
+	
 	protected void interrupted() {
 		end();
 	}
-
-	@Override
+	
 	protected boolean isFinished() {
 		return collectorSubsystem.isForkliftDown();
 	}

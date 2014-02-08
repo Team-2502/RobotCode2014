@@ -13,29 +13,24 @@ public class UnwindWinch extends CommandBase {
 	public UnwindWinch() {
 		requires(shooterSubsystem);
 	}
-
-	@Override
+	
 	protected void end() {
 		shooterSubsystem.stopWinch();
 	}
-
-	@Override
+	
 	protected void execute() {
 		if (shooterSubsystem.getWinchProgress() <= 0)
 			finished = true;
 	}
-
-	@Override
+	
 	protected void initialize() {
 		shooterSubsystem.moveWinchUp();
 	}
-
-	@Override
+	
 	protected void interrupted() {
 		end();
 	}
-
-	@Override
+	
 	protected boolean isFinished() {
 		return finished;
 	}

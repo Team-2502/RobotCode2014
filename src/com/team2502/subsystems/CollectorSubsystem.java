@@ -27,8 +27,7 @@ public class CollectorSubsystem extends Subsystem {
 		upLimitSwitch = new DigitalInput(RobotMap.COLLECTOR_UP_LIMIT);
 		downLimitSwitch = new DigitalInput(RobotMap.COLLECTOR_DOWN_LIMIT);
 	}
-
-	@Override
+	
 	protected void initDefaultCommand() {
 
 	}

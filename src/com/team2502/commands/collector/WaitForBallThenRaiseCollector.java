@@ -13,30 +13,26 @@ public class WaitForBallThenRaiseCollector extends CommandBase {
 	public WaitForBallThenRaiseCollector() {
 		requires(collectorSubsystem);
 	}
-
-	@Override
+	
 	protected void end() {
 
 	}
-
+	
 	protected void execute() {
 		if (collectorSubsystem.isBallInCollector()) {
 			collectorSubsystem.moveCollectorUp();
 			finished = true;
 		}
 	}
-
-	@Override
+	
 	protected void initialize() {
 		
 	}
-
-	@Override
+	
 	protected void interrupted() {
 		end();
 	}
-
-	@Override
+	
 	protected boolean isFinished() {
 		return finished && collectorSubsystem.isForkliftUp();
 	}

@@ -13,29 +13,24 @@ public class PullBackShooter extends CommandBase {
 	public PullBackShooter() {
 		requires(shooterSubsystem);
 	}
-
-	@Override
+	
 	protected void end() {
 		shooterSubsystem.stopWinch();
 	}
-
-	@Override
+	
 	protected void execute() {
 		if (shooterSubsystem.isDown())
 			finished = true;
 	}
-
-	@Override
+	
 	protected void initialize() {
 		shooterSubsystem.moveWinchDown();
 	}
-
-	@Override
+	
 	protected void interrupted() {
 		end();
 	}
-
-	@Override
+	
 	protected boolean isFinished() {
 		return finished;
 	}

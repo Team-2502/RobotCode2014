@@ -11,28 +11,23 @@ public class CalibrateShooterEncoderBottom extends CommandBase {
 	public CalibrateShooterEncoderBottom() {
 		requires(shooterSubsystem);
 	}
-
-	@Override
+	
 	protected void end() {
 
 	}
-
-	@Override
+	
 	protected void execute() {
 		
 	}
-
-	@Override
+	
 	protected void initialize() {
 		shooterSubsystem.setCurrentEncoderPositionAsBottom();
 	}
-
-	@Override
+	
 	protected void interrupted() {
 		end();
 	}
-
-	@Override
+	
 	protected boolean isFinished() {
 		return true;
 	}
