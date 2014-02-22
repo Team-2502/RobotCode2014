@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.command.CommandGroup;
 public class WaitForBallThenCollect extends CommandGroup {
 
 	public WaitForBallThenCollect() {
-		addSequential(new WaitForBallThenRaiseCollector());
+		addSequential(new ToggleAndWaitForBall());
 		addSequential(new MoveForkliftDown());
 	}
 

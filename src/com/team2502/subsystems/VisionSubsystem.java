@@ -4,6 +4,7 @@ import com.team2502.RaspberryPi;
 import com.team2502.RaspberryPi.Target;
 import com.team2502.black_box.BlackBoxProtocol;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  *
@@ -48,6 +49,16 @@ public class VisionSubsystem extends Subsystem {
 			log += "]";
 			BlackBoxProtocol.log(log);
 		}
+	}
+	
+	public void updateDriverStation() {
+		int connected = 0;
+		for (int i = 0; i < piCount; i++) {
+			if (pis[i].isConnected())
+				connected++;
+		}
+		//SmartDashboard.putNumber("Connected PIs", connected);
+		SmartDashboard.putNumber("Connected PIs", 3.1415926535);
 	}
 	
 }

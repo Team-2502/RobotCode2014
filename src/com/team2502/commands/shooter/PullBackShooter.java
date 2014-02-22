@@ -7,9 +7,9 @@ import com.team2502.commands.CommandBase;
  *
  */
 public class PullBackShooter extends CommandBase {
-
-	private boolean finished = false;
-
+	
+	private int downInRow = 0;
+	
 	public PullBackShooter() {
 		requires(shooterSubsystem);
 	}
@@ -19,12 +19,16 @@ public class PullBackShooter extends CommandBase {
 	}
 	
 	protected void execute() {
+		shooterSubsystem.moveWinchDown();
 		if (shooterSubsystem.isDown())
-			finished = true;
+			downInRow++;
+		else
+			downInRow = 0;
 	}
 	
 	protected void initialize() {
 		shooterSubsystem.moveWinchDown();
+		downInRow = 0;
 	}
 	
 	protected void interrupted() {
@@ -32,7 +36,7 @@ public class PullBackShooter extends CommandBase {
 	}
 	
 	protected boolean isFinished() {
-		return finished;
+		return downInRow >= 3;
 	}
 
 }

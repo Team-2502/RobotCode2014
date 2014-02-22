@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj.DigitalModule;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SolenoidBase;
-import java.util.Random;
 
 
 /**
@@ -40,11 +39,14 @@ public class BlackBoxSubPacket {
 		BlackBoxSubPacketType type = new BlackBoxSubPacketType(BlackBoxSubPacketType.USER_UPDATE & BlackBoxSubPacketType.MODULE_MESSAGE);
 		packet.type = type.getType();
 		short length = (short)message.length();
-		byte [] data = new byte[2 + message.length()];
-		data[0] = (byte)(length & 0xff);
-		data[1] = (byte)((length >> 8) & 0xff);
+		byte [] data = new byte[2 + headerSize + message.length()];
+		int pos = 0;
+		generateHeader(data, 0, headerSize, 6);
+		pos += headerSize;
+		data[pos++] = (byte)(length & 0xff);
+		data[pos++] = (byte)((length >> 8) & 0xff);
 		for (int i = 0; i < length; i++) {
-			data[i+2] = (byte)message.charAt(i);
+			data[pos++] = (byte)message.charAt(i);
 		}
 		packet.data = data;
 		return packet;

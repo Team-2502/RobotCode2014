@@ -24,7 +24,6 @@ public class Socket {
 	
 	public Socket(String ip, int port, int connectionType) {
 		address = "socket://" + ip + ":" + port;
-		connectToSocket();
 	}
 	
 	private boolean connectToSocket() {
@@ -45,9 +44,16 @@ public class Socket {
 		return connectToSocket();
 	}
 	
+	public boolean isConnected() {
+		return initialized;
+	}
+	
 	public boolean skip(int bytes) {
 		try {
-			inputStream.skip(bytes);
+			if (inputStream != null)
+				inputStream.skip(bytes);
+			else
+				return false;
 			return true;
 		} catch (IOException ex) {
 			return false;
@@ -56,7 +62,9 @@ public class Socket {
 	
 	public int available() {
 		try {
-			return inputStream.available();
+			if (inputStream != null)
+				return inputStream.available();
+			return -1;
 		} catch (IOException ex) {
 			return -1;
 		}
@@ -64,7 +72,10 @@ public class Socket {
 	
 	public boolean flush() {
 		try {
-			outputStream.flush();
+			if (outputStream != null)
+				outputStream.flush();
+			else
+				outputStream = null;
 			return true;
 		} catch (IOException ex) {
 			return false;
@@ -75,7 +86,10 @@ public class Socket {
 		byte [] data = new byte[bufferSize];
 		int readSize;
 		try {
-			readSize = inputStream.read(data);
+			if (inputStream != null)
+				readSize = inputStream.read(data);
+			else
+				readSize = -1;
 		} catch (IOException ex) {
 			return null;
 		}
@@ -97,7 +111,10 @@ public class Socket {
 	
 	public boolean write(byte [] data) {
 		try {
-			outputStream.write(data);
+			if (outputStream != null)
+				outputStream.write(data);
+			else
+				return false;
 			return true;
 		} catch (IOException ex) {
 			BlackBoxProtocol.log("Failed to write to stream of length " + data.length);

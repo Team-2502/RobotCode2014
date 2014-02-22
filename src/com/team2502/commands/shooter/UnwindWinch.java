@@ -7,9 +7,7 @@ import com.team2502.commands.CommandBase;
  *
  */
 public class UnwindWinch extends CommandBase {
-
-	boolean finished = false;
-
+	
 	public UnwindWinch() {
 		requires(shooterSubsystem);
 	}
@@ -19,8 +17,7 @@ public class UnwindWinch extends CommandBase {
 	}
 	
 	protected void execute() {
-		if (shooterSubsystem.getWinchProgress() <= 0)
-			finished = true;
+		
 	}
 	
 	protected void initialize() {
@@ -32,7 +29,7 @@ public class UnwindWinch extends CommandBase {
 	}
 	
 	protected boolean isFinished() {
-		return finished;
+		return shooterSubsystem.getWinchProgress() <= 0;
 	}
 
 }

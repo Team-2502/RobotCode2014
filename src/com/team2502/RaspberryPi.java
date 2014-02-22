@@ -19,6 +19,10 @@ public class RaspberryPi {
 		return address;
 	}
 	
+	public boolean isConnected() {
+		return socket.isConnected();
+	}
+	
 	public void initialize() {
 		socket.connect();
 		ByteBuffer wArray = ByteBuffer.allocate(2);
@@ -42,7 +46,7 @@ public class RaspberryPi {
 	}
 	
 	public void setGameRecording(boolean recording) {
-		ByteBuffer wArray = ByteBuffer.allocate(2);
+		ByteBuffer wArray = ByteBuffer.allocate(4);
 		wArray.put((byte)6); // Set Values
 		wArray.put((byte)2); // Length
 		wArray.put((byte)4); // Game Recording
@@ -51,7 +55,7 @@ public class RaspberryPi {
 	}
 	
 	public void setBrightness(int brightness) {
-		ByteBuffer wArray = ByteBuffer.allocate(2);
+		ByteBuffer wArray = ByteBuffer.allocate(4);
 		wArray.put((byte)6); // Set Values
 		wArray.put((byte)2); // Length
 		wArray.put((byte)1); // Brightness
@@ -60,7 +64,7 @@ public class RaspberryPi {
 	}
 	
 	public void setThreshold(int threshLow, int threshHigh) {
-		ByteBuffer wArray = ByteBuffer.allocate(2);
+		ByteBuffer wArray = ByteBuffer.allocate(5);
 		wArray.put((byte)6); // Set Values
 		wArray.put((byte)3); // Length
 		wArray.put((byte)2); // Threshold
@@ -70,7 +74,7 @@ public class RaspberryPi {
 	}
 	
 	public void setCompetitionMode(boolean competitionMode) {
-		ByteBuffer wArray = ByteBuffer.allocate(2);
+		ByteBuffer wArray = ByteBuffer.allocate(4);
 		wArray.put((byte)6); // Set Values
 		wArray.put((byte)2); // Length
 		wArray.put((byte)2); // Threshold

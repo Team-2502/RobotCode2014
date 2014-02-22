@@ -1,6 +1,5 @@
 package com.team2502.black_box;
 
-import com.sun.squawk.util.SimpleLinkedList;
 import edu.wpi.first.wpilibj.communication.ModulePresence;
 import edu.wpi.first.wpilibj.communication.ModulePresence.ModuleType;
 
@@ -10,7 +9,7 @@ import edu.wpi.first.wpilibj.communication.ModulePresence.ModuleType;
  */
 public class BlackBoxUpdater implements Runnable {
 	
-	private SimpleLinkedList messageQueue = new SimpleLinkedList();
+	private String [] messageList = new String[0];
 	private boolean running = false;
 	
 	public BlackBoxUpdater() {
@@ -32,11 +31,12 @@ public class BlackBoxUpdater implements Runnable {
 				addDigitalPackets(dataPacket);
 				addSolenoidPackets(dataPacket);
 				BlackBoxPacket messagePacket = new BlackBoxPacket();
-				synchronized (messageQueue) {
-					while (messageQueue.size() > 0) {
-						String message = (String)messageQueue.getFirst();
+				synchronized (messageList) {
+					for (int i = 0; i < messageList.length; i++) {
+						String message = (String)messageList[i];
 						messagePacket.addPacket(BlackBoxSubPacket.createPacketForMessage(message));
 					}
+					messageList = new String[0];
 				}
 				BlackBoxProtocol.getInstance().sendPacket(gamePacket);
 				BlackBoxProtocol.getInstance().sendPacket(dataPacket);
@@ -53,8 +53,11 @@ public class BlackBoxUpdater implements Runnable {
 	}
 	
 	public void addMessage(String message) {
-		synchronized (messageQueue) {
-			messageQueue.addLast(message);
+		synchronized (messageList) {
+			String [] nList = new String[messageList.length+1];
+			System.arraycopy(messageList, 0, nList, 0, messageList.length);
+			nList[nList.length-1] = message;
+			messageList = nList;
 		}
 	}
 	

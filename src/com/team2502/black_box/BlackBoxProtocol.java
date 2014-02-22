@@ -2,6 +2,8 @@ package com.team2502.black_box;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Timer;
+import java.util.TimerTask;
 import javax.microedition.io.Connector;
 import javax.microedition.io.SocketConnection;
 
@@ -12,12 +14,13 @@ import javax.microedition.io.SocketConnection;
 public class BlackBoxProtocol {
 	
 	private static BlackBoxProtocol INSTANCE;
+	private static boolean started;
 	private int updateRate = 1000 / 20; // 20hz, 50ms
 	private String [] remoteIPList = new String[0];
 	private int remotePort = 1180;
 	private final int connectionType = Connector.WRITE;
 	private int packetNum = 0;
-	private long lastConnectionAttempt = 0;
+	private long [] lastConnectionAttempt = new long[0];
 	private SocketConnection comm = null;
 	private OutputStream outputStream = null;
 	private BlackBoxUpdater updater;
@@ -27,6 +30,7 @@ public class BlackBoxProtocol {
 	private BlackBoxProtocol(String [] ips, int port, double updateRateHertz) {
 		remoteIPList = ips;
 		remotePort = port;
+		lastConnectionAttempt = new long[ips.length];
 		updateRate = (int)(1000 / updateRateHertz);
 		updater = new BlackBoxUpdater();
 		updaterThread = new Thread(updater);
@@ -37,12 +41,15 @@ public class BlackBoxProtocol {
 	}
 	
 	public static void start(String [] ips, int port, double updateRateHertz) {
+		if (started)
+			return;
 		if (INSTANCE == null) {
 			INSTANCE = new BlackBoxProtocol(ips, port, updateRateHertz);
 			INSTANCE.startAll();
 		} else if (!INSTANCE.isRunning()) {
 			INSTANCE.startAll();
 		}
+		started = true;
 	}
 	
 	public static void start(String ip, int port, double updateRateHertz) {
@@ -58,6 +65,10 @@ public class BlackBoxProtocol {
 		if (INSTANCE == null)
 			return;
 		INSTANCE.updater.addMessage(message);
+	}
+	
+	public static boolean isStarted() {
+		return started;
 	}
 	
 	public boolean isRunning() {
@@ -93,38 +104,50 @@ public class BlackBoxProtocol {
 	}
 	
 	public long getTimeSinceLastConnectionAttempt() {
-		return System.currentTimeMillis() - lastConnectionAttempt;
+		if (lastConnectionAttempt.length < 1)
+			return -1;
+		long shortest = System.currentTimeMillis() - lastConnectionAttempt[0];
+		for (int i = 1; i < lastConnectionAttempt.length; i++) {
+			long cur = System.currentTimeMillis() - lastConnectionAttempt[i];
+			if (cur < shortest)
+				shortest = cur;
+		}
+		return shortest;
 	}
 	
 	public boolean reconnectToDriverStation() {
-		for (int i = 0; i < remoteIPList.length; i++) {
-			if (!isConnectedToDriverStation()) {
-				if (getTimeSinceLastConnectionAttempt() >= 1000) {
-					openConnection(remoteIPList[i], false);
-				}
-				if (isConnectedToDriverStation()) {
-					System.out.println("BlackBoxProtocol: Established connection with driver station.");
-					return true;
+		if (getTimeSinceLastConnectionAttempt() >= 1000) {
+			for (int i = 0; i < remoteIPList.length; i++) {
+				if (!isConnectedToDriverStation()) {
+					if (openConnection(i, false))
+						return true;
 				}
 			}
 		}
 		return false;
 	}
 	
-	private boolean openConnection(String ip, boolean outputError) {
-		lastConnectionAttempt = System.currentTimeMillis();
+	private boolean openConnection(int index, boolean outputError) {
+		System.out.println("Attempting to connect to " + remoteIPList[index]);
+		if (index < 0 || index >= lastConnectionAttempt.length)
+			return false;
+		lastConnectionAttempt[index] = System.currentTimeMillis();
 		try {
-			comm = (SocketConnection)Connector.open("socket://"+ip+":"+remotePort, connectionType);
+			// This is my version of a "timeout" for 5000ms
+			//Timer t = new Timer();
+			//t.schedule(new TimeoutTask(Thread.currentThread()), 5000);
+			// This is what is being timed out
+			comm = (SocketConnection)Connector.open("socket://"+remoteIPList[index]+":"+remotePort, connectionType, true);
 			outputStream = comm.openOutputStream();
 			return true;
-		} catch (IOException ex) {
+		} catch (Exception ex) {
 			outputStream = null;
 			comm = null;
 			if (outputError) {
 				String error = toString()
 						+ ": Failed to establish connection"
 						+ " with driver station"
-						+ " at " + ip+":"+remotePort;
+						+ " at " + remoteIPList[index]+":"+remotePort;
 				System.out.println(error);
 			}
 			return false;
@@ -152,5 +175,19 @@ public class BlackBoxProtocol {
 		return "BlackBoxProtocol";
 	}
 	
+	
+	private class TimeoutTask extends TimerTask {
+		
+		private Thread thread;
+		
+		public TimeoutTask(Thread thread) {
+			this.thread = thread;
+		}
+		
+		public void run() {
+			System.out.println("TRYING TO TIME OUT!");
+			thread.interrupt();
+		}
+	}
 	
 }

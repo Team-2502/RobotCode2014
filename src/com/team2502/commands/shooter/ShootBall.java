@@ -10,18 +10,21 @@ public class ShootBall extends CommandBase {
 
 	public ShootBall() {
 		requires(shooterSubsystem);
+		setTimeout(.2);
 	}
 	
 	protected void end() {
-
+		
 	}
 	
 	protected void execute() {
+		
 	}
 	
 	protected void initialize() {
-		if (shooterSubsystem.isLoaded() && shooterSubsystem.isDown() && shooterSubsystem.isLatched())
-			shooterSubsystem.deactivateLatch();
+//		if (shooterSubsystem.isLoaded() && shooterSubsystem.isLatched())
+//			shooterSubsystem.deactivateLatch();
+		shooterSubsystem.deactivateLatch();
 	}
 	
 	protected void interrupted() {
@@ -29,7 +32,7 @@ public class ShootBall extends CommandBase {
 	}
 	
 	protected boolean isFinished() {
-		return true;
+		return isTimedOut();
 	}
 
 }

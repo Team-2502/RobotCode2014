@@ -1,12 +1,15 @@
 package com.team2502.subsystems;
 
 import com.team2502.RobotMap;
+import com.team2502.black_box.BlackBoxProtocol;
 import com.team2502.commands.drive.DriveWithJoystick;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  *
@@ -14,12 +17,19 @@ import edu.wpi.first.wpilibj.command.Subsystem;
  */
 public class DriveSubsystem extends Subsystem {
 	
-	private static final boolean REVERSE_LEFT = false;
-	private static final boolean REVERSE_RIGHT = true;
+	private static final double MOTOR_THRESHOLD = 0.04;
+	private static final double FORWARD_SENSITIVITY = 1;
+	private static final double TURN_SENSITIVITY = 0.8;
+	private static final double STRAFE_SENSITIVITY = 1;
+	private static final boolean REVERSE_FRONT_LEFT = false;
+	private static final boolean REVERSE_FRONT_RIGHT = true;
+	private static final boolean REVERSE_BACK_LEFT = false;
+	private static final boolean REVERSE_BACK_RIGHT = true;
 	private SpeedController frontLeft;
 	private SpeedController frontRight;
 	private SpeedController backLeft;
 	private SpeedController backRight;
+	private RobotDrive driveTrain;
 	private Solenoid trainSwitcher;
 	private boolean isTraction; // Either traction or mecanum
 	
@@ -28,7 +38,14 @@ public class DriveSubsystem extends Subsystem {
 		frontRight = new Talon(RobotMap.DRIVE_FRONT_RIGHT);
 		backLeft = new Talon(RobotMap.DRIVE_BACK_LEFT);
 		backRight = new Talon(RobotMap.DRIVE_BACK_RIGHT);
+//		driveTrain = new RobotDrive(frontLeft, backLeft, frontRight, backRight);
 		trainSwitcher = new Solenoid(RobotMap.DRIVE_TRAIN_SWITCHER);
+//		driveTrain.setInvertedMotor(RobotDrive.MotorType.kFrontLeft, REVERSE_FRONT_LEFT);
+//		driveTrain.setInvertedMotor(RobotDrive.MotorType.kFrontRight, REVERSE_FRONT_RIGHT);
+//		driveTrain.setInvertedMotor(RobotDrive.MotorType.kRearLeft, REVERSE_BACK_LEFT);
+//		driveTrain.setInvertedMotor(RobotDrive.MotorType.kRearRight, REVERSE_BACK_RIGHT);
+//		driveTrain.setSafetyEnabled(false);
+//		driveTrain.setExpiration(2000);
 		switchToMecanum();
 	}
 	
@@ -52,15 +69,8 @@ public class DriveSubsystem extends Subsystem {
 	 * @param left Speed to run the two left motors
 	 * @param right Speed to run the two right motors
 	 */
-	public final void driveTank(double left, double right) {
-		if (left > 1) left = 1;
-		if (left < -1) left = -1;
-		if (right > 1) right = 1;
-		if (right < -1) right = -1;
-		frontLeft.set(left * (REVERSE_LEFT ? -1 : 1));
-		frontRight.set(right * (REVERSE_RIGHT ? -1 : 1));
-		backLeft.set(left * (REVERSE_LEFT ? -1 : 1));
-		backRight.set(right * (REVERSE_RIGHT ? -1 : 1));
+	public final void driveTank(double left, double right, boolean squared) {
+		driveIndependent(left, right, left, right, squared);
 	}
 	
 	/**
@@ -71,7 +81,7 @@ public class DriveSubsystem extends Subsystem {
 	 * @param rearLeft Speed to run the rear-left motor
 	 * @param rearRight Speed to run the rear-right motor
 	 */
-	public final void driveIndependent(double forwardLeft, double forwardRight, double rearLeft, double rearRight) {
+	public final void driveIndependent(double forwardLeft, double forwardRight, double rearLeft, double rearRight, boolean squared) {
 		if (forwardLeft > 1) forwardLeft = 1;
 		if (forwardLeft < -1) forwardLeft = -1;
 		if (forwardRight > 1) forwardRight = 1;
@@ -80,10 +90,24 @@ public class DriveSubsystem extends Subsystem {
 		if (rearLeft < -1) rearLeft = -1;
 		if (rearRight > 1) rearRight = 1;
 		if (rearRight < -1) rearRight = -1;
-		frontLeft.set(forwardLeft * (REVERSE_LEFT ? -1 : 1));
-		frontRight.set(forwardRight * (REVERSE_RIGHT ? -1 : 1));
-		backLeft.set(rearLeft * (REVERSE_LEFT ? -1 : 1));
-		backRight.set(rearRight * (REVERSE_RIGHT ? -1 : 1));
+		if (squared) {
+			forwardLeft *= Math.abs(forwardLeft);
+			forwardRight *= Math.abs(forwardRight);
+			rearLeft *= Math.abs(rearLeft);
+			rearRight *= Math.abs(rearRight);
+		}
+		if (Math.abs(forwardLeft) < MOTOR_THRESHOLD)
+			forwardLeft = 0;
+		if (Math.abs(forwardRight) < MOTOR_THRESHOLD)
+			forwardRight = 0;
+		if (Math.abs(rearLeft) < MOTOR_THRESHOLD)
+			rearLeft = 0;
+		if (Math.abs(rearRight) < MOTOR_THRESHOLD)
+			rearRight = 0;
+		frontLeft.set(forwardLeft * (REVERSE_FRONT_LEFT ? -1 : 1));
+		frontRight.set(forwardRight * (REVERSE_FRONT_RIGHT ? -1 : 1));
+		backLeft.set(rearLeft * (REVERSE_BACK_LEFT ? -1 : 1));
+		backRight.set(rearRight * (REVERSE_BACK_RIGHT ? -1 : 1));
 	}
 	
 	/**
@@ -94,7 +118,7 @@ public class DriveSubsystem extends Subsystem {
 	 * @param right The right joystick for driving
 	 */
 	public final void driveTank(Joystick left, Joystick right) {
-		driveTank(left.getY(), right.getY());
+		driveTank(left, right, false);
 	}
 	
 	/**
@@ -106,10 +130,12 @@ public class DriveSubsystem extends Subsystem {
 	 * @param squared Whether the input is squared or not
 	 */
 	public final void driveTank(Joystick left, Joystick right, boolean squared) {
-		driveTank(left.getY()*left.getY(), right.getY()*right.getY());
+//		driveTrain.tankDrive(left, right);
+		driveTank(left.getY()*FORWARD_SENSITIVITY, right.getY()*FORWARD_SENSITIVITY, false);
 	}
 	
 	/**
+		driveIndependent(forward+clockwise+righ
 	 * This is a convenience method, so that it is easy to make the robot move
 	 * based on a joystick. This is where the joystick drives the robot in a way
 	 * that when the driver pushes forward it moves forward and it turns the
@@ -117,7 +143,7 @@ public class DriveSubsystem extends Subsystem {
 	 * @param joy The joystick to use for driving
 	 */
 	public final void driveArcade(Joystick joy) {
-		driveTank(joy.getY() + joy.getZ(), joy.getY() - joy.getZ());
+		driveArcade(joy, false);
 	}
 	
 	/**
@@ -128,17 +154,10 @@ public class DriveSubsystem extends Subsystem {
 	 * @param joy The joystick to use for driving
 	 */
 	public final void driveArcade(Joystick joy, boolean squared) {
-		double left = joy.getY() + joy.getZ();
-		double right = joy.getY() - joy.getZ();
-		if (left > 1) left = 1;
-		if (left < -1) left = -1;
-		if (right > 1) right = 1;
-		if (right < -1) right = -1;
-		if (squared) {
-			left *= left;
-			right *= right;
-		}
-		driveTank(left, right);
+		double y = joy.getY() * FORWARD_SENSITIVITY;
+		double z = joy.getZ() * TURN_SENSITIVITY;
+		driveTank(y - z, y + z, squared);
+//		driveTrain.arcadeDrive(joy, squared);
 	}
 	
 	/**
@@ -149,12 +168,26 @@ public class DriveSubsystem extends Subsystem {
 	 * @param joy The joystick to use for driving
 	 */
 	public final boolean driveMecanum(Joystick joy) {
-		if (isTraction)
-			return false;
-		double forward = -joy.getY();
-		double right = joy.getX();
-		double clockwise = joy.getZ();
-		driveIndependent(forward+clockwise+right, forward-clockwise-right, forward+clockwise-right, forward-clockwise+right);
+		return driveMecanum(joy, false);
+	}
+	
+	/**
+	 * This is a convenience method, so that it is easy to make the robot move
+	 * based on a joystick. This is where the joystick drives the robot in a way
+	 * that it is able to strafe left/right as well as being able to move forward
+	 * and turn.
+	 * @param joy The joystick to use for driving
+	 * @param squared Squared output
+	 */
+	public final boolean driveMecanum(Joystick joy, boolean squared) {
+//		if (isTraction)
+//			return false;
+		double forward = joy.getY()*FORWARD_SENSITIVITY;
+		double right = -joy.getX()*STRAFE_SENSITIVITY;
+		double clockwise = -joy.getZ()*TURN_SENSITIVITY;
+//		driveTrain.mecanumDrive_Polar(forward, 0, clockwise);
+//		return true;
+		driveIndependent(forward+clockwise+right, forward-clockwise-right, forward+clockwise-right, forward-clockwise+right, squared);
 		return true;
 	}
 	
@@ -166,12 +199,24 @@ public class DriveSubsystem extends Subsystem {
 	 * @param joy The joystick to use for driving
 	 */
 	public final boolean driveMecanum(Joystick left, Joystick right) {
+		return driveMecanum(left, right, false);
+	}
+	
+	/**
+	 * This is a convenience method, so that it is easy to make the robot move
+	 * based on a joystick. This is where the joystick drives the robot in a way
+	 * that it is able to strafe left/right as well as being able to move forward
+	 * and turn.
+	 * @param joy The joystick to use for driving
+	 * @param squared Squared output
+	 */
+	public final boolean driveMecanum(Joystick left, Joystick right, boolean squared) {
 		if (isTraction)
 			return false;
-		double yMove = -left.getY();
-		double xMove = left.getX();
-		double zRot = right.getX();
-		driveIndependent(yMove+zRot+xMove, yMove-zRot-xMove, yMove+zRot-xMove, yMove-zRot+xMove);
+		double yMove = left.getY()*FORWARD_SENSITIVITY;
+		double xMove = left.getX()*STRAFE_SENSITIVITY;
+		double zRot = -right.getX()*TURN_SENSITIVITY;
+		driveIndependent(yMove+zRot+xMove, yMove-zRot-xMove, yMove+zRot-xMove, yMove-zRot+xMove, squared);
 		return true;
 	}
 	
@@ -190,18 +235,40 @@ public class DriveSubsystem extends Subsystem {
 	}
 	
 	public final boolean switchToTraction() {
-		if (isTraction)
-			return true;
-		if (isMovingSideways())
-			return false;
 		isTraction = true;
 		trainSwitcher.set(isTraction);
 		return true;
+//		if (isTraction)
+//			return true;
+//		if (isMovingSideways())
+//			return false;
+//		isTraction = true;
+//		trainSwitcher.set(isTraction);
+//		return true;
 	}
 	
 	public final void switchToMecanum() {
 		isTraction = false;
 		trainSwitcher.set(isTraction);
+	}
+	
+	public final boolean toggleDriveTrain() {
+		if (isTraction) {
+			BlackBoxProtocol.log("Switching drive train from Traction to Mecanum");
+			switchToMecanum();
+			return true;
+		} else {
+			BlackBoxProtocol.log("Switching drive train from Mecanum to Traction");
+			return switchToTraction();
+		}
+	}
+	
+	public final void updateDriverStation() {
+		SmartDashboard.putString("Drive Mode", isTraction ? "Traction" : "Mecanum");
+		SmartDashboard.putNumber("Front Left", frontLeft.get());
+		SmartDashboard.putNumber("Front Right", frontRight.get());
+		SmartDashboard.putNumber("Back Left", backLeft.get());
+		SmartDashboard.putNumber("Back Right", backRight.get());
 	}
 	
 }

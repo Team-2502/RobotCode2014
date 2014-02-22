@@ -1,6 +1,7 @@
 package com.team2502.commands.drive;
 
 import com.team2502.OI;
+import com.team2502.black_box.BlackBoxProtocol;
 import com.team2502.commands.CommandBase;
 
 /**
@@ -20,15 +21,15 @@ public class DriveWithJoystick extends CommandBase {
 	protected void execute() {
 		if (driveSubsystem.isTraction()) {
 			if (OI.JOYSTICK_COUNT == 2) {
-				driveSubsystem.driveTank(OI.joyDriveLeft, OI.joyDriveRight);
+				driveSubsystem.driveTank(OI.joyDriveLeft, OI.joyDriveRight, true);
 			} else {
-				driveSubsystem.driveArcade(OI.joyDriveRight);
+				driveSubsystem.driveArcade(OI.joyDriveRight, true);
 			}
 		} else {
 			if (OI.JOYSTICK_COUNT == 2) {
-				driveSubsystem.driveMecanum(OI.joyDriveLeft, OI.joyDriveRight);
+				driveSubsystem.driveMecanum(OI.joyDriveLeft, OI.joyDriveRight, true);
 			} else {
-				driveSubsystem.driveMecanum(OI.joyDriveRight);
+				driveSubsystem.driveMecanum(OI.joyDriveRight, true);
 			}
 		}
 	}

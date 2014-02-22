@@ -6,9 +6,10 @@ import edu.wpi.first.wpilibj.command.CommandGroup;
  * @author Jackson Turner
  *
  */
-public class LoadShooter extends CommandGroup{
+public class LoadShooter extends CommandGroup {
 
 	public LoadShooter() {
+		addSequential(new UnlatchTheLatch());
 		addSequential(new PullBackShooter());
 		addSequential(new LatchTheLatch());
 		addSequential(new UnwindWinch());

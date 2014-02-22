@@ -21,8 +21,7 @@ public class LatchTheLatch extends CommandBase {
 	}
 	
 	protected void initialize() {
-		if (shooterSubsystem.isDown())
-			shooterSubsystem.activateLatch();
+		shooterSubsystem.activateLatch();
 	}
 	
 	protected void interrupted() {

@@ -17,7 +17,7 @@ public abstract class CommandBase extends Command {
 	private static OI oi;
 	protected static DriveSubsystem driveSubsystem = new DriveSubsystem();
 	protected static ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
-	protected static VisionSubsystem visionSubsystem = new VisionSubsystem(1);
+	protected static VisionSubsystem visionSubsystem = new VisionSubsystem(0);
 	protected static CollectorSubsystem collectorSubsystem = new CollectorSubsystem();
 	
 	public static void init() {
@@ -29,6 +29,13 @@ public abstract class CommandBase extends Command {
 		SmartDashboard.putData(visionSubsystem);
 		SmartDashboard.putData(collectorSubsystem);
     }
+	
+	public static void updateDriverStation() {
+		driveSubsystem.updateDriverStation();
+		collectorSubsystem.updateDriverStation();
+		shooterSubsystem.updateDriverStation();
+		visionSubsystem.updateDriverStation();
+	}
 
     public CommandBase(String name) {
         super(name);
