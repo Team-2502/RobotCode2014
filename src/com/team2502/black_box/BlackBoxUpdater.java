@@ -21,6 +21,10 @@ public class BlackBoxUpdater implements Runnable {
 	}
 	
 	public void run() {
+		if (BlackBoxProtocol.getInstance().reconnectToDriverStation())
+			System.out.println("BlackBoxProtocol: Established connection to driver station");
+		else
+			System.out.println("BlackBoxProtocol: Failed to establish connection with driver station");
 		running = true;
 		while (running) {
 			if (BlackBoxProtocol.getInstance().isConnectedToDriverStation()) {

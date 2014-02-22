@@ -18,6 +18,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class ShooterSubsystem extends Subsystem {
 	
+	private static final double P = 1;
+	private static final double I = 0;
+	private static final double D = 0;
 	private static final double LOADED_THRESHOLD = -1000;  // Analog trigger threshold 
 	private static final double WINCH_SPEED = .8;  // Winch speed (between -1 and 1)
 	private CANJaguar winch;
@@ -43,7 +46,7 @@ public class ShooterSubsystem extends Subsystem {
 				winch = new CANJaguar(RobotMap.SHOOTER_WINCH_CAN_PORT);
 				winch.configEncoderCodesPerRev(360);
 				winch.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
-				//winch.setPID(winch.getP(), winch.getI(), winch.getD());
+				winch.setPID(P, I, D);
 				return true;
 			} catch (CANTimeoutException e){
 				BlackBoxProtocol.log("CAN-Jaguar initilization failed: " + e.toString());
@@ -91,12 +94,14 @@ public class ShooterSubsystem extends Subsystem {
 		}
 		for (int i = 0; i < 3; i++) {
 			try {
-//				winch.changeControlMode(CANJaguar.ControlMode.kPosition);
-//				winch.enableControl();
-//				winch.setX(topWinchPosition);
-				winch.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
-				winch.disableControl();
-				winch.setX(WINCH_SPEED);
+				winch.changeControlMode(CANJaguar.ControlMode.kPosition);
+				winch.setPID(P, I, D);
+				winch.enableControl(bottomWinchPosition);
+				winch.setPID(P, I, D);
+				winch.setX(topWinchPosition);
+//				winch.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
+//				winch.disableControl();
+//				winch.setX(WINCH_SPEED);
 				break;
 			} catch (CANTimeoutException e){
 				BlackBoxProtocol.log("CAN-Jaguar communication failed (moveWinchUp): " + e.toString());
@@ -257,6 +262,12 @@ public class ShooterSubsystem extends Subsystem {
 		SmartDashboard.putNumber("Ball Detector", loadedSensor.getVoltage());
 		SmartDashboard.putBoolean("Compressing", compressor.enabled());
 		SmartDashboard.putNumber("Winch Position", getWinchProgress());
+		try {
+			SmartDashboard.putNumber("Jaguar X", winch.getX());
+			SmartDashboard.putString("Jaguar PID", winch.getP()+","+winch.getI()+","+winch.getD());
+		} catch (CANTimeoutException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

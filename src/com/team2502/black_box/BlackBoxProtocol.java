@@ -80,10 +80,6 @@ public class BlackBoxProtocol {
 	}
 	
 	private void startAll() {
-		if (reconnectToDriverStation())
-			System.out.println("BlackBoxProtocol: Established connection to driver station");
-		else
-			System.out.println("BlackBoxProtocol: Failed to establish connection with driver station");
 		updaterThread.start();
 		running = true;
 	}
