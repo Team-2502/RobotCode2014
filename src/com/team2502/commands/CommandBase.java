@@ -17,7 +17,7 @@ public abstract class CommandBase extends Command {
 	private static OI oi;
 	protected static DriveSubsystem driveSubsystem = new DriveSubsystem();
 	protected static ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
-	protected static VisionSubsystem visionSubsystem = new VisionSubsystem(0);
+	protected static VisionSubsystem visionSubsystem = new VisionSubsystem();
 	protected static CollectorSubsystem collectorSubsystem = new CollectorSubsystem();
 	
 	public static void init() {

@@ -29,7 +29,7 @@ public class UnwindWinch extends CommandBase {
 	}
 	
 	protected boolean isFinished() {
-		return shooterSubsystem.getWinchProgress() <= 0;
+		return shooterSubsystem.isWinchProgressUp();
 	}
 
 }

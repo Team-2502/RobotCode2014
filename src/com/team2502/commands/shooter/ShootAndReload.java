@@ -11,7 +11,7 @@ public class ShootAndReload extends CommandGroup {
 	
 	public ShootAndReload() {
 		addSequential(new ShootBall());
-		addSequential(new WaitCommand(.2));
+		addSequential(new WaitCommand(.5));
 		addSequential(new LoadShooter());
 	}
 	

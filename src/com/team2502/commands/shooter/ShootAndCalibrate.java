@@ -1,7 +1,5 @@
 package com.team2502.commands.shooter;
 
-import com.team2502.commands.collector.MoveForkliftDown;
-import com.team2502.commands.collector.MoveForkliftUp;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.WaitCommand;
 
@@ -16,6 +14,7 @@ public class ShootAndCalibrate extends CommandGroup {
 		addSequential(new ShootBall());
 		addSequential(new WaitCommand(.5));
 		// Calibrates Encoder
+		addSequential(new ResetShooterEncoder());
 		addSequential(new CalibrateShooterEncoderTop());
 		// Unlatches for when we pull back down
 		addSequential(new UnlatchTheLatch());

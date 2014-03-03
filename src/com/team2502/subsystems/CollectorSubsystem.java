@@ -1,5 +1,6 @@
 package com.team2502.subsystems;
 
+import com.team2502.Robot;
 import com.team2502.RobotMap;
 
 import edu.wpi.first.wpilibj.AnalogChannel;

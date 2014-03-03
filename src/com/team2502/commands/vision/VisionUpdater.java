@@ -17,7 +17,7 @@ public class VisionUpdater extends CommandBase {
 	}
 	
 	protected void execute() {
-		
+		visionSubsystem.updateRaspberryPi();
 	}
 	
 	protected boolean isFinished() {

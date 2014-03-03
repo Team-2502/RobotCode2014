@@ -12,7 +12,7 @@ public class RaspberryPi {
 	private boolean initialized;
 	
 	public RaspberryPi(String ip) {
-		socket = new Socket(ip, 1180, Socket.READ_WRITE);
+		socket = new Socket(ip, 1180);
 	}
 	
 	public String getAddress() {
@@ -24,7 +24,6 @@ public class RaspberryPi {
 	}
 	
 	public void initialize() {
-		socket.connect();
 		ByteBuffer wArray = ByteBuffer.allocate(2);
 		wArray.put((byte)1);
 		wArray.put((byte)0);
@@ -43,6 +42,14 @@ public class RaspberryPi {
 		wArray.put((byte)3);
 		wArray.put((byte)0);
 		socket.write(wArray.array());
+	}
+	
+	public void sendMatchData(ByteBuffer data) {
+		byte [] sData = new byte[data.length()+2];
+		sData[0] = 7;
+		sData[1] = (byte)data.length();
+		System.arraycopy(data.array(), 0, sData, 2, data.length());
+		socket.write(data.array());
 	}
 	
 	public void setGameRecording(boolean recording) {
@@ -94,86 +101,29 @@ public class RaspberryPi {
 		Target [] list = new Target[targetCount];
 		for (int i = 0; i < targetCount; i++) {
 			Target t = new Target();
-			t.setNormX(rArray.getDouble());
-			t.setNormY(rArray.getDouble());
-			t.setDistance(rArray.getDouble());
-			t.setDistanceError(rArray.getDouble());
-			t.setRectangularity(rArray.getDouble());
-			t.setXAngle(rArray.getDouble());
-			t.setYAngle(rArray.getDouble());
+			t.normX = rArray.getDouble();
+			t.normY = rArray.getDouble();
+			t.xAngle = rArray.getDouble();
+			t.yAngle = rArray.getDouble();
+			t.angle = rArray.getDouble();
 			list[i] = t;
 		}
 		return list;
 	}
 	
 	public class Target {
-		private double normX;
-		private double normY;
-		private double distance;
-		private double distanceError;
-		private double rectangularity;
-		private double xAngle;
-		private double yAngle;
-		
-		public void setNormX(double normX) { this.normX = normX; }
-		public void setNormY(double normY) { this.normY = normY; }
-		public void setDistance(double distance) { this.distance = distance; }
-		public void setDistanceError(double err ) { this.distanceError = err; }
-		public void setRectangularity(double rect) { this.rectangularity = rect; }
-		public void setXAngle(double xAngle) { this.xAngle = xAngle; }
-		public void setYAngle(double yAngle) { this.yAngle = yAngle; }
-		
-		public double getNormX() { return normX; }
-		public double getNormY() { return normY; }
-		public double getDistance() { return distance; }
-		public double getDistanceError() { return distanceError; }
-		public double getRectangularity() { return rectangularity; }
-		public double getXAngle() { return xAngle; }
-		public double getYAngle() { return yAngle; }
+		public double normX;
+		public double normY;
+		public double xAngle;
+		public double yAngle;
+		public double angle;
 		
 		public String toString() {
 			String ret = "Target[";
 			ret += "norm(x,y)=("+Math.floor(normX*1000+.5)/1000+","+Math.floor(normY*1000+.5)/1000+"), ";
-			ret += "distance="+Math.floor(distance*1000+.5)/1000+" +/- ";
-			ret += Math.floor(distanceError*1000+.5)/1000 + ", angle(x,y)=(";
 			ret += Math.floor(xAngle*1000+.5)/1000+","+Math.floor(yAngle*1000+.5)/1000;
 			ret += ")]";
 			return ret;
 		}
 	}
-	
-	public class TargetBuilder {
-		private Target target;
-		public TargetBuilder() {
-			target = new Target();
-		}
-		public Target build() {
-			return target;
-		}
-		public TargetBuilder setNormilizedX(double normX) {
-			target.normX = normX;
-			return this;
-		}
-		public TargetBuilder setNormalizedY(double normY) {
-			target.normY = normY;
-			return this;
-		}
-		public TargetBuilder setDistance(double distance) {
-			target.distance = distance;
-			return this;
-		}
-		public TargetBuilder setDistanceError(double distanceError) {
-			target.distanceError = distanceError;
-			return this;
-		}
-		public TargetBuilder setXAngle(double xAngle) {
-			target.xAngle = xAngle;
-			return this;
-		}
-		public TargetBuilder setYAngle(double yAngle) {
-			target.yAngle = yAngle;
-			return this;
-		}
-	}
-	
 }

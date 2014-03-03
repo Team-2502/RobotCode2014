@@ -23,16 +23,16 @@ public class MoveRobotForward extends CommandBase {
 	}
 	
 	protected void initialize() {
-		driveSubsystem.driveTank(SPEED, SPEED, false);
+		driveSubsystem.driveTank(SPEED * (seconds < 0 ? -1 : 1), SPEED * (seconds < 0 ? -1 : 1));
 		startedTime = System.currentTimeMillis();
 	}
 	
 	protected void execute() {
-		driveSubsystem.driveTank(SPEED, SPEED, false);
+		driveSubsystem.driveTank(SPEED * (seconds < 0 ? -1 : 1), SPEED * (seconds < 0 ? -1 : 1));
 	}
 	
 	protected boolean isFinished() {
-		return (System.currentTimeMillis() - startedTime) >= seconds*1000;
+		return (System.currentTimeMillis() - startedTime) >= Math.abs(seconds)*1000;
 	}
 	
 	protected void end() {

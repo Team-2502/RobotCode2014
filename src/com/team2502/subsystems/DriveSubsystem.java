@@ -1,5 +1,6 @@
 package com.team2502.subsystems;
 
+import com.team2502.Robot;
 import com.team2502.RobotMap;
 import com.team2502.black_box.BlackBoxProtocol;
 import com.team2502.commands.drive.DriveWithJoystick;
@@ -69,8 +70,8 @@ public class DriveSubsystem extends Subsystem {
 	 * @param left Speed to run the two left motors
 	 * @param right Speed to run the two right motors
 	 */
-	public final void driveTank(double left, double right, boolean squared) {
-		driveIndependent(left, right, left, right, squared);
+	public final void driveTank(double left, double right) {
+		driveIndependent(left, right, left, right);
 	}
 	
 	/**
@@ -81,7 +82,7 @@ public class DriveSubsystem extends Subsystem {
 	 * @param rearLeft Speed to run the rear-left motor
 	 * @param rearRight Speed to run the rear-right motor
 	 */
-	public final void driveIndependent(double forwardLeft, double forwardRight, double rearLeft, double rearRight, boolean squared) {
+	public final void driveIndependent(double forwardLeft, double forwardRight, double rearLeft, double rearRight) {
 		if (forwardLeft > 1) forwardLeft = 1;
 		if (forwardLeft < -1) forwardLeft = -1;
 		if (forwardRight > 1) forwardRight = 1;
@@ -90,12 +91,6 @@ public class DriveSubsystem extends Subsystem {
 		if (rearLeft < -1) rearLeft = -1;
 		if (rearRight > 1) rearRight = 1;
 		if (rearRight < -1) rearRight = -1;
-		if (squared) {
-			forwardLeft *= Math.abs(forwardLeft);
-			forwardRight *= Math.abs(forwardRight);
-			rearLeft *= Math.abs(rearLeft);
-			rearRight *= Math.abs(rearRight);
-		}
 		if (Math.abs(forwardLeft) < MOTOR_THRESHOLD)
 			forwardLeft = 0;
 		if (Math.abs(forwardRight) < MOTOR_THRESHOLD)
@@ -131,7 +126,13 @@ public class DriveSubsystem extends Subsystem {
 	 */
 	public final void driveTank(Joystick left, Joystick right, boolean squared) {
 //		driveTrain.tankDrive(left, right);
-		driveTank(left.getY()*FORWARD_SENSITIVITY, right.getY()*FORWARD_SENSITIVITY, false);
+		double ly = left.getY();
+		double ry = right.getY();
+		if (squared) {
+			ly *= Math.abs(ly);
+			ry *= Math.abs(ry);
+		}
+		driveTank(ly*FORWARD_SENSITIVITY, ry*FORWARD_SENSITIVITY);
 	}
 	
 	/**
@@ -154,9 +155,9 @@ public class DriveSubsystem extends Subsystem {
 	 * @param joy The joystick to use for driving
 	 */
 	public final void driveArcade(Joystick joy, boolean squared) {
-		double y = joy.getY() * FORWARD_SENSITIVITY;
-		double z = joy.getZ() * TURN_SENSITIVITY;
-		driveTank(y - z, y + z, squared);
+		double y = joy.getY() * (squared ? Math.abs(joy.getY()) : 1) * FORWARD_SENSITIVITY;
+		double z = joy.getZ() * (squared ? Math.abs(joy.getZ()) : 1) * TURN_SENSITIVITY;
+		driveTank(y - z, y + z);
 //		driveTrain.arcadeDrive(joy, squared);
 	}
 	
@@ -182,12 +183,20 @@ public class DriveSubsystem extends Subsystem {
 	public final boolean driveMecanum(Joystick joy, boolean squared) {
 //		if (isTraction)
 //			return false;
-		double forward = joy.getY()*FORWARD_SENSITIVITY;
-		double right = -joy.getX()*STRAFE_SENSITIVITY;
-		double clockwise = -joy.getZ()*TURN_SENSITIVITY;
+		double x = joy.getX();
+		double y = joy.getY();
+		double z = joy.getZ();
+		if (squared) {
+			x *= Math.abs(x);
+			y *= Math.abs(y);
+			z *= Math.abs(z);
+		}
+		double forward = y*FORWARD_SENSITIVITY;
+		double right = -x*STRAFE_SENSITIVITY;
+		double clockwise = -z*TURN_SENSITIVITY;
 //		driveTrain.mecanumDrive_Polar(forward, 0, clockwise);
 //		return true;
-		driveIndependent(forward+clockwise+right, forward-clockwise-right, forward+clockwise-right, forward-clockwise+right, squared);
+		driveIndependent(forward+clockwise+right, forward-clockwise-right, forward+clockwise-right, forward-clockwise+right);
 		return true;
 	}
 	
@@ -216,7 +225,7 @@ public class DriveSubsystem extends Subsystem {
 		double yMove = left.getY()*FORWARD_SENSITIVITY;
 		double xMove = left.getX()*STRAFE_SENSITIVITY;
 		double zRot = -right.getX()*TURN_SENSITIVITY;
-		driveIndependent(yMove+zRot+xMove, yMove-zRot-xMove, yMove+zRot-xMove, yMove-zRot+xMove, squared);
+		driveIndependent(yMove+zRot+xMove, yMove-zRot-xMove, yMove+zRot-xMove, yMove-zRot+xMove);
 		return true;
 	}
 	

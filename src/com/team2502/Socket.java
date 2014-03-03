@@ -11,19 +11,23 @@ import javax.microedition.io.SocketConnection;
  *
  * @author Josh Larson
  */
-public class Socket {
+public class Socket implements Runnable {
 	
 	public static final int READ_WRITE = Connector.READ_WRITE;
 	public static final int READ = Connector.READ;
 	public static final int WRITE = Connector.WRITE;
+	private Thread thread;
 	private SocketConnection comm;
 	private InputStream inputStream;
 	private OutputStream outputStream;
 	private String address;
 	private boolean initialized;
 	
-	public Socket(String ip, int port, int connectionType) {
+	public Socket(String ip, int port) {
 		address = "socket://" + ip + ":" + port;
+		initialized = false;
+		thread = new Thread(this);
+		thread.start();
 	}
 	
 	private boolean connectToSocket() {
@@ -31,6 +35,7 @@ public class Socket {
 			return true;
 		try {
 			comm = (SocketConnection)Connector.open(address, Connector.READ_WRITE);
+			inputStream = comm.openInputStream();
 			outputStream = comm.openOutputStream();
 			initialized = true;
 		} catch (IOException ex) {
@@ -40,14 +45,29 @@ public class Socket {
 		return initialized;
 	}
 	
-	public boolean connect() {
-		return connectToSocket();
+	public void run() {
+		while (!connectToSocket()) {
+			try {
+				Thread.sleep(30);
+			} catch (InterruptedException e) {
+			}
+		}
+	}
+	
+	public void close() {
+		outputStream = null;
+		inputStream = null;
+		try {
+			comm.close();
+		} catch (IOException ex) {
+		}
 	}
 	
 	public boolean isConnected() {
 		return initialized;
 	}
 	
+	/*
 	public boolean skip(int bytes) {
 		try {
 			if (inputStream != null)
@@ -81,8 +101,11 @@ public class Socket {
 			return false;
 		}
 	}
+	*/
 	
 	public byte [] read(int bufferSize) {
+		if (!initialized)
+			return null;
 		byte [] data = new byte[bufferSize];
 		int readSize;
 		try {
@@ -101,6 +124,8 @@ public class Socket {
 	}
 	
 	public ByteBuffer readNextBundle() {
+		if (!initialized)
+			return null;
 		ByteBuffer bb = ByteBuffer.create();
 		byte [] tmpData;
 		while ((tmpData = read(1024)) != null) {
@@ -110,6 +135,8 @@ public class Socket {
 	}
 	
 	public boolean write(byte [] data) {
+		if (!initialized)
+			return false;
 		try {
 			if (outputStream != null)
 				outputStream.write(data);

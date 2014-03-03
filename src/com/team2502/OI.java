@@ -6,27 +6,16 @@ import com.team2502.commands.shooter.CalibrateWinch;
 import com.team2502.commands.shooter.ForceWinchDown;
 import com.team2502.commands.shooter.ForceWinchUp;
 import com.team2502.commands.shooter.LatchTheLatch;
-import com.team2502.commands.shooter.PullBackShooter;
 import com.team2502.commands.shooter.ShootAndReload;
+import com.team2502.commands.shooter.SlowFeedToAlliance;
 import com.team2502.commands.shooter.StartCompressor;
 import com.team2502.commands.shooter.UnlatchTheLatch;
-import com.team2502.commands.shooter.UnwindWinch;
+import com.team2502.commands.vision.ActivateRingLight;
+import com.team2502.commands.vision.DeactivateRingLight;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 
 public class OI {
-	
-	/*
-	 * Joystick 1 (Right)
-	 *		* Trigger  -	Shoot and Reload Ball
-	 *		* Button 2 -	Switch Drive Train
-	 *		* 
-	 * 
-	 * Joystick 2 (Left)
-	 *		* Trigger	-	Toggle Forklift
-	 *		* Button 2	-	Switch Drive Train
-	 *		* 
-	 */
 	
 	public static final int JOYSTICK_COUNT = 1;
 	public static Joystick joyDriveLeft;
@@ -50,6 +39,12 @@ public class OI {
 	
 	private static JoystickButton shootAndCalibrateRight;
 	
+	private static JoystickButton activateRingLightRight;
+	private static JoystickButton deactivateRingLightRight;
+	
+	private static JoystickButton slowFeedToAllianceLeft;
+	private static JoystickButton slowFeedToAllianceRight;
+	
 	public static void init() {
 		joyDriveLeft = new Joystick(RobotMap.JOYSTICK_DRIVE_LEFT_PORT);
 		joyDriveRight = new Joystick(RobotMap.JOYSTICK_DRIVE_RIGHT_PORT);
@@ -63,6 +58,7 @@ public class OI {
 		switchDriveTrainLeft = new JoystickButton(joyDriveLeft, 2);
 		toggleForkliftLeft = new JoystickButton(joyDriveLeft, 1);
 		startCompressorLeft = new JoystickButton(joyDriveLeft, 4);
+		slowFeedToAllianceLeft = new JoystickButton(joyDriveLeft, 3);
 	}
 	
 	private static void createRightJoystickButtons() {
@@ -74,12 +70,16 @@ public class OI {
 		latchTheLatchRight = new JoystickButton(joyDriveRight, 10);
 		unlatchTheLatchRight = new JoystickButton(joyDriveRight, 12);
 		shootAndCalibrateRight = new JoystickButton(joyDriveRight, 3);
+		activateRingLightRight = new JoystickButton(joyDriveRight, 6);
+		deactivateRingLightRight = new JoystickButton(joyDriveRight, 5);
+		slowFeedToAllianceRight = new JoystickButton(joyDriveRight, 7);
 	}
 	
 	private static void linkLeftJoystickButtons() {
 		switchDriveTrainLeft.whenPressed(new ToggleDriveTrain());
 		toggleForkliftLeft.whenPressed(new ToggleForklift());
 		startCompressorLeft.whileHeld(new StartCompressor());
+		slowFeedToAllianceLeft.whenPressed(new SlowFeedToAlliance());
 	}
 	
 	private static void linkRightJoystickButtons() {
@@ -91,6 +91,9 @@ public class OI {
 		latchTheLatchRight.whenPressed(new LatchTheLatch());
 		unlatchTheLatchRight.whenPressed(new UnlatchTheLatch());
 		shootAndCalibrateRight.whenPressed(new CalibrateWinch());
+		activateRingLightRight.whileHeld(new ActivateRingLight());
+		deactivateRingLightRight.whileHeld(new DeactivateRingLight());
+		slowFeedToAllianceRight.whenPressed(new SlowFeedToAlliance());
 	}
 	
 }

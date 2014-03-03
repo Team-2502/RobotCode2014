@@ -25,7 +25,7 @@ public class CalibrateWinch extends CommandGroup {
 		addSequential(new WaitCommand(.1));
 		// Latches
 		addSequential(new LatchTheLatch());
-		addSequential(new WaitCommand(.2));
+		addSequential(new WaitCommand(.5));
 		// Calibrates then Unwinds
 		addSequential(new UnwindWinch());
 	}

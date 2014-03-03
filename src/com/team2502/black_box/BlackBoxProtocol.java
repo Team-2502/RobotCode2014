@@ -27,28 +27,31 @@ public class BlackBoxProtocol {
 	private Thread updaterThread;
 	private boolean running;
 	
-	private BlackBoxProtocol(String [] ips, int port, double updateRateHertz) {
+	private BlackBoxProtocol() {
+		updater = new BlackBoxUpdater();
+		updaterThread = new Thread(updater);
+	}
+	
+	private void initialize(String [] ips, int port, double updateRateHertz) {
 		remoteIPList = ips;
 		remotePort = port;
 		lastConnectionAttempt = new long[ips.length];
 		updateRate = (int)(1000 / updateRateHertz);
-		updater = new BlackBoxUpdater();
-		updaterThread = new Thread(updater);
 	}
 	
 	public static BlackBoxProtocol getInstance() {
 		return INSTANCE;
 	}
 	
+	public static void initialize() {
+		if (INSTANCE == null)
+			INSTANCE = new BlackBoxProtocol();
+	}
+	
 	public static void start(String [] ips, int port, double updateRateHertz) {
 		if (started)
 			return;
-		if (INSTANCE == null) {
-			INSTANCE = new BlackBoxProtocol(ips, port, updateRateHertz);
-			INSTANCE.startAll();
-		} else if (!INSTANCE.isRunning()) {
-			INSTANCE.startAll();
-		}
+		INSTANCE.initialize(ips, port, updateRateHertz);
 		started = true;
 	}
 	

@@ -2,7 +2,10 @@ package com.team2502.subsystems;
 
 import com.team2502.RaspberryPi;
 import com.team2502.RaspberryPi.Target;
+import com.team2502.RobotMap;
 import com.team2502.black_box.BlackBoxProtocol;
+import com.team2502.commands.vision.VisionUpdater;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -12,53 +15,40 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class VisionSubsystem extends Subsystem {
 	
-	private RaspberryPi [] pis;
-	private int piCount;
+	private Solenoid ringLight;
+	private RaspberryPi pi;
 	
-	public VisionSubsystem(int piCount) {
-		this.piCount = piCount;
-		pis = new RaspberryPi[piCount];
-		for (int i = 0; i < piCount; i++) {
-			pis[i] = new RaspberryPi("10.25.2." + (30+piCount));
-			pis[i].initialize();
-			pis[i].startProcessing();
-			pis[i].setGameRecording(false);
-		}
+	public VisionSubsystem() {
+		ringLight = new Solenoid(RobotMap.VISION_RING_LIGHT);
+		pi = new RaspberryPi("10.25.2.30");
 	}
 	
 	public void initDefaultCommand() {
-		
+		setDefaultCommand(new VisionUpdater());
 	}
 	
-	public RaspberryPi getPi(int index) {
-		if (index >= piCount || index < 0)
-			return null;
-		return pis[index];
+	public void activateRingLight() {
+		setRingLight(true);
 	}
 	
-	public void outputTargetInfo() {
-		for (int i = 0; i < piCount; i++) {
-			RaspberryPi pi = pis[i];
-			Target [] targetList = pi.getTargetList();
-			String log = pi.getAddress() + ":[";
-			for (int t = 0; t < targetList.length; t++) {
-				log += targetList[t].toString();
-				if (t+1 < targetList.length)
-					log += ", ";
-			}
-			log += "]";
-			BlackBoxProtocol.log(log);
+	public void deactivateRingLight() {
+		setRingLight(false);
+	}
+	
+	public void setRingLight(boolean on) {
+		ringLight.set(on);
+	}
+	
+	public void updateRaspberryPi() {
+		// Request Target Data
+		Target [] targets = pi.getTargetList();
+		for (int i = 0; i < targets.length; i++) {
+			BlackBoxProtocol.log("Target #" + i + ": Angle: " + targets[i].angle);
 		}
 	}
 	
 	public void updateDriverStation() {
-		int connected = 0;
-		for (int i = 0; i < piCount; i++) {
-			if (pis[i].isConnected())
-				connected++;
-		}
-		//SmartDashboard.putNumber("Connected PIs", connected);
-		SmartDashboard.putNumber("Connected PIs", 3.1415926535);
+		SmartDashboard.putBoolean("Connected to PI", pi.isConnected());
 	}
 	
 }
