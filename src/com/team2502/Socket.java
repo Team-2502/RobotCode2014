@@ -4,6 +4,7 @@ import com.team2502.black_box.BlackBoxProtocol;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.SocketConnection;
 
@@ -16,18 +17,26 @@ public class Socket implements Runnable {
 	public static final int READ_WRITE = Connector.READ_WRITE;
 	public static final int READ = Connector.READ;
 	public static final int WRITE = Connector.WRITE;
+	private SocketCallback callback;
+	private Vector operations;
 	private Thread thread;
 	private SocketConnection comm;
 	private InputStream inputStream;
 	private OutputStream outputStream;
 	private String address;
 	private boolean initialized;
+	private boolean running;
 	
 	public Socket(String ip, int port) {
 		address = "socket://" + ip + ":" + port;
-		initialized = false;
+		operations = new Vector();
 		thread = new Thread(this);
-		thread.start();
+		initialized = false;
+		running = true;
+	}
+	
+	public void setCallback(SocketCallback callback) {
+		this.callback = callback;
 	}
 	
 	private boolean connectToSocket() {
@@ -38,6 +47,7 @@ public class Socket implements Runnable {
 			inputStream = comm.openInputStream();
 			outputStream = comm.openOutputStream();
 			initialized = true;
+			BlackBoxProtocol.log("Successfully connected to " + address);
 		} catch (IOException ex) {
 			BlackBoxProtocol.log("Failed to connect to " + address);
 			initialized = false;
@@ -46,12 +56,50 @@ public class Socket implements Runnable {
 	}
 	
 	public void run() {
-		while (!connectToSocket()) {
-			try {
-				Thread.sleep(30);
-			} catch (InterruptedException e) {
+		while (running) {
+			if (!initialized) {
+				if (connectToSocket())
+					callback.onConnected();
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+
+				}
+			} else {
+				while (operations.size() > 0) {
+					SocketOperation op = (SocketOperation)operations.elementAt(0);
+					if (op.isRead()) {
+						byte [] data = read(op.readData);
+						if (data == null) {
+							initialized = false;
+							callback.onDisconnected();
+							break;
+						}
+						callback.onRead(op.operationID, data);
+					} else {
+						boolean success = write(op.writeData);
+						if (!success) {
+							initialized = false;
+							callback.onDisconnected();
+							break;
+						}
+						callback.onWrite(op.operationID, success);
+					}
+					operations.removeElementAt(0);
+				}
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+
+				}
 			}
 		}
+	}
+	
+	public void start() {
+		running = true;
+		if (!thread.isAlive())
+			thread.start();
 	}
 	
 	public void close() {
@@ -65,6 +113,10 @@ public class Socket implements Runnable {
 	
 	public boolean isConnected() {
 		return initialized;
+	}
+	
+	public boolean isStarted() {
+		return running;
 	}
 	
 	/*
@@ -103,10 +155,9 @@ public class Socket implements Runnable {
 	}
 	*/
 	
-	public byte [] read(int bufferSize) {
+	private byte [] read(byte [] data) {
 		if (!initialized)
 			return null;
-		byte [] data = new byte[bufferSize];
 		int readSize;
 		try {
 			if (inputStream != null)
@@ -123,18 +174,18 @@ public class Socket implements Runnable {
 		return smallerData;
 	}
 	
-	public ByteBuffer readNextBundle() {
+	private ByteBuffer readNextBundle() {
 		if (!initialized)
 			return null;
 		ByteBuffer bb = ByteBuffer.create();
-		byte [] tmpData;
-		while ((tmpData = read(1024)) != null) {
+		byte [] tmpData = new byte[1024];
+		while ((tmpData = read(tmpData)) != null) {
 			bb.put(tmpData);
 		}
 		return bb;
 	}
 	
-	public boolean write(byte [] data) {
+	private boolean write(byte [] data) {
 		if (!initialized)
 			return false;
 		try {
@@ -147,6 +198,55 @@ public class Socket implements Runnable {
 			BlackBoxProtocol.log("Failed to write to stream of length " + data.length);
 			return false;
 		}
+	}
+	
+	public void read(int opID, int bufferSize) {
+		operations.addElement(new SocketOperation(opID, bufferSize));
+	}
+	
+	public void write(int opID, byte [] data) {
+		operations.addElement(new SocketOperation(opID, data));
+	}
+	
+	public interface SocketCallback {
+		public void onConnected();
+		public void onDisconnected();
+		public void onRead(int opID, byte [] read);
+		public void onWrite(int opID, boolean success);
+	}
+	
+	private class SocketOperation {
+		
+		private int operationID;
+		private byte [] readData;
+		private byte [] writeData;
+		
+		public SocketOperation(int opID) {
+			this.operationID = opID;
+			readData = null;
+			writeData = null;
+		}
+		
+		public SocketOperation(int opID, int readSize) {
+			this.operationID = opID;
+			readData = new byte[readSize];
+			writeData = null;
+		}
+		
+		public SocketOperation(int opID, byte [] writeData) {
+			this.operationID = opID;
+			readData = null;
+			this.writeData = writeData;
+		}
+		
+		public boolean isRead() {
+			return readData != null;
+		}
+		
+		public boolean isWrite() {
+			return writeData != null;
+		}
+		
 	}
 	
 }

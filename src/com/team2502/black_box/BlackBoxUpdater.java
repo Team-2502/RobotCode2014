@@ -2,6 +2,7 @@ package com.team2502.black_box;
 
 import edu.wpi.first.wpilibj.communication.ModulePresence;
 import edu.wpi.first.wpilibj.communication.ModulePresence.ModuleType;
+import java.util.Vector;
 
 /**
  *
@@ -9,7 +10,7 @@ import edu.wpi.first.wpilibj.communication.ModulePresence.ModuleType;
  */
 public class BlackBoxUpdater implements Runnable {
 	
-	private String [] messageList = new String[0];
+	private Vector messages = new Vector();
 	private boolean running = false;
 	
 	public BlackBoxUpdater() {
@@ -35,12 +36,10 @@ public class BlackBoxUpdater implements Runnable {
 				addDigitalPackets(dataPacket);
 				addSolenoidPackets(dataPacket);
 				BlackBoxPacket messagePacket = new BlackBoxPacket();
-				synchronized (messageList) {
-					for (int i = 0; i < messageList.length; i++) {
-						String message = (String)messageList[i];
-						messagePacket.addPacket(BlackBoxSubPacket.createPacketForMessage(message));
-					}
-					messageList = new String[0];
+				while (messages.size() > 0) {
+					String message = (String)messages.elementAt(0);
+					messages.removeElementAt(0);
+					messagePacket.addPacket(BlackBoxSubPacket.createPacketForMessage(message));
 				}
 				BlackBoxProtocol.getInstance().sendPacket(gamePacket);
 				BlackBoxProtocol.getInstance().sendPacket(dataPacket);
@@ -57,12 +56,7 @@ public class BlackBoxUpdater implements Runnable {
 	}
 	
 	public void addMessage(String message) {
-		synchronized (messageList) {
-			String [] nList = new String[messageList.length+1];
-			System.arraycopy(messageList, 0, nList, 0, messageList.length);
-			nList[nList.length-1] = message;
-			messageList = nList;
-		}
+		messages.addElement(message);
 	}
 	
 	private void addGamePacket(BlackBoxPacket packet) {

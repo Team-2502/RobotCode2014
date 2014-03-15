@@ -21,7 +21,7 @@ public class MoveForkliftUp extends CommandBase {
 	}
 	
 	protected void initialize() {
-		collectorSubsystem.moveCollectorUp();
+		collectorSubsystem.moveForkliftUp();
 	}
 	
 	protected void interrupted() {

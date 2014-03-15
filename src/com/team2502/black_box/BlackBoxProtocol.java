@@ -2,7 +2,6 @@ package com.team2502.black_box;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Timer;
 import java.util.TimerTask;
 import javax.microedition.io.Connector;
 import javax.microedition.io.SocketConnection;
@@ -65,6 +64,7 @@ public class BlackBoxProtocol {
 	}
 	
 	public static void log(String message) {
+		System.out.println("[BlackBoxProtocol]: " + message);
 		if (INSTANCE == null)
 			return;
 		INSTANCE.updater.addMessage(message);

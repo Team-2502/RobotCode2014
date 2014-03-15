@@ -4,7 +4,7 @@ import com.team2502.commands.CommandBase;
 
 /**
  *
- * @author josh
+ * @author Josh Larson
  */
 public class ToggleForklift extends CommandBase {
 	
@@ -14,9 +14,9 @@ public class ToggleForklift extends CommandBase {
 	
 	protected void initialize() {
 		if (collectorSubsystem.isForkliftUp())
-			collectorSubsystem.moveCollectorDown();
+			collectorSubsystem.moveForkliftDown();
 		else
-			collectorSubsystem.moveCollectorUp();
+			collectorSubsystem.moveForkliftUp();
 	}
 	
 	protected void execute() {

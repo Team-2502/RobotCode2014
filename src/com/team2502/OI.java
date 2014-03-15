@@ -1,5 +1,6 @@
 package com.team2502;
 
+import com.team2502.commands.collector.ToggleAndWaitForBall;
 import com.team2502.commands.collector.ToggleForklift;
 import com.team2502.commands.drive.ToggleDriveTrain;
 import com.team2502.commands.shooter.CalibrateWinch;
@@ -26,6 +27,8 @@ public class OI {
 	
 	private static JoystickButton toggleForkliftLeft;
 	
+	private static JoystickButton backupToggleForkliftLeft;
+	
 	private static JoystickButton shootBallRight;
 	
 	private static JoystickButton startCompressorLeft;
@@ -45,6 +48,9 @@ public class OI {
 	private static JoystickButton slowFeedToAllianceLeft;
 	private static JoystickButton slowFeedToAllianceRight;
 	
+	private static JoystickButton windWinchUpLeft;
+	private static JoystickButton windWinchDownLeft;
+	
 	public static void init() {
 		joyDriveLeft = new Joystick(RobotMap.JOYSTICK_DRIVE_LEFT_PORT);
 		joyDriveRight = new Joystick(RobotMap.JOYSTICK_DRIVE_RIGHT_PORT);
@@ -59,6 +65,8 @@ public class OI {
 		toggleForkliftLeft = new JoystickButton(joyDriveLeft, 1);
 		startCompressorLeft = new JoystickButton(joyDriveLeft, 4);
 		slowFeedToAllianceLeft = new JoystickButton(joyDriveLeft, 3);
+		backupToggleForkliftLeft = new JoystickButton(joyDriveLeft, 5);
+		//wndWinchUpLeft = new JoystickButton(joyDriveLeft, 9);
 	}
 	
 	private static void createRightJoystickButtons() {
@@ -80,6 +88,7 @@ public class OI {
 		toggleForkliftLeft.whenPressed(new ToggleForklift());
 		startCompressorLeft.whileHeld(new StartCompressor());
 		slowFeedToAllianceLeft.whenPressed(new SlowFeedToAlliance());
+		backupToggleForkliftLeft.whenPressed(new ToggleForklift());
 	}
 	
 	private static void linkRightJoystickButtons() {

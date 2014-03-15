@@ -1,21 +1,19 @@
 package com.team2502.subsystems;
 
-import com.team2502.Robot;
 import com.team2502.RobotMap;
 import com.team2502.black_box.BlackBoxProtocol;
 
+import com.team2502.commands.shooter.WindWinchUp;
 import edu.wpi.first.wpilibj.AnalogChannel;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PIDController;
-import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.Relay.Value;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.tables.TableKeyNotDefinedException;
 
 /**
  * @author Jackson Turner
@@ -81,7 +79,7 @@ public class ShooterSubsystem extends Subsystem {
 	}
 	
 	protected void initDefaultCommand() {
-
+		setDefaultCommand(new WindWinchUp());
 	}
 	
 	public void moveToPosition(double position) {
@@ -224,6 +222,9 @@ public class ShooterSubsystem extends Subsystem {
 	
 	public double getWinchProgress() {
 		double progress = 0;
+		if (winchEncoder == null && !initalizeCANJaguar()) {
+			return progress;
+		}
 		if (bottomWinchPosition > topWinchPosition) {
 			if (bottomWinchPosition-topWinchPosition == 0)
 				return 0;
@@ -249,11 +250,17 @@ public class ShooterSubsystem extends Subsystem {
 	}
 	
 	public void setCurrentEncoderPositionAsBottom() {
+		if (winchEncoder == null && !initalizeCANJaguar()) {
+			return;
+		}
 		bottomWinchPosition = winchEncoder.getRaw();
 		BlackBoxProtocol.log("Bottom Winch Position: " + bottomWinchPosition);
 	}
 	
 	public void setCurrentEncoderPositionAsTop() {
+		if (winchEncoder == null && !initalizeCANJaguar()) {
+			return;
+		}
 		topWinchPosition = winchEncoder.getRaw();
 		BlackBoxProtocol.log("Top Winch Position: " + topWinchPosition);
 	}
@@ -270,25 +277,12 @@ public class ShooterSubsystem extends Subsystem {
 		SmartDashboard.putBoolean("Latched", !latch.get());
 		SmartDashboard.putNumber("Ball Detector", loadedSensor.getVoltage());
 		SmartDashboard.putBoolean("Compressing", compressor.enabled());
-		SmartDashboard.putNumber("Winch Position", getWinchProgress());
-		SmartDashboard.putNumber("Winch Ticks", winchEncoder.getRaw()/TICKS_PER_REVOLUTION);
-		SmartDashboard.putNumber("Winch Speed", winchEncoder.getRate()/TICKS_PER_REVOLUTION);
-		SmartDashboard.putNumber("PID Error", controller.getError());
-	}
-	
-	private class JaguarOutput implements PIDOutput {
-		public void pidWrite(double d) {
-			SmartDashboard.putNumber("Jaguar X", d);
-			if (winch == null)
-				return;
-			for (int i = 0; i < 3; i++) {
-				try {
-					winch.setX(d);
-				} catch (CANTimeoutException ex) {
-					
-				}
-			}
+		SmartDashboard.putNumber("Winch Position", getWinchProgress()*100);
+		if (winchEncoder != null) {
+			SmartDashboard.putNumber("Winch Ticks", winchEncoder.getRaw()/TICKS_PER_REVOLUTION);
+			SmartDashboard.putNumber("Winch Speed", winchEncoder.getRate()/TICKS_PER_REVOLUTION);
+			SmartDashboard.putNumber("PID Error", controller.getError());
 		}
 	}
-
+	
 }

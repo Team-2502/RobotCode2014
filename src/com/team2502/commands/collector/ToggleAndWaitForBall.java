@@ -8,6 +8,7 @@ import com.team2502.commands.CommandBase;
  */
 public class ToggleAndWaitForBall extends CommandBase {
 	
+	private static final double TIME_UNTIL_BALL = 2.0;
 	private boolean finished = false;
 	
 	public ToggleAndWaitForBall() {
@@ -19,8 +20,8 @@ public class ToggleAndWaitForBall extends CommandBase {
 	}
 	
 	protected void execute() {
-		if (collectorSubsystem.isBallInCollector() && !finished) {
-			collectorSubsystem.moveCollectorUp();
+		if (collectorSubsystem.isBallInCollector() && !finished && timeSinceInitialized() >= TIME_UNTIL_BALL) {
+			collectorSubsystem.moveForkliftUp();
 			finished = true;
 		}
 	}
@@ -28,10 +29,10 @@ public class ToggleAndWaitForBall extends CommandBase {
 	protected void initialize() {
 		if (collectorSubsystem.isForkliftDown()) {
 			finished = true;
-			collectorSubsystem.moveCollectorUp();
+			collectorSubsystem.moveForkliftUp();
 		} else {
 			finished = false;
-			collectorSubsystem.moveCollectorDown();
+			collectorSubsystem.moveForkliftDown();
 		}
 	}
 	
@@ -40,7 +41,7 @@ public class ToggleAndWaitForBall extends CommandBase {
 	}
 	
 	protected boolean isFinished() {
-		return finished && collectorSubsystem.isForkliftUp();
+		return finished;
 	}
 
 }

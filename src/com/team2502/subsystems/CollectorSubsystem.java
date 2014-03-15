@@ -14,8 +14,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class CollectorSubsystem extends Subsystem {
 	
-	private static final boolean UP_POSITION = true;
-	private static final double BALL_PRESENT_THRESHOLD = 0;
+	private static final boolean UP_POSITION = false;
+	private static final double BALL_PRESENT_THRESHOLD = 0.6;
 	private Solenoid collectorPiston;
 	private AnalogChannel ballInCollectorSensorOne;
 	private AnalogChannel ballInCollectorSensorTwo;
@@ -30,11 +30,11 @@ public class CollectorSubsystem extends Subsystem {
 
 	}
 	
-	public void moveCollectorDown() {
+	public void moveForkliftDown() {
 		collectorPiston.set(!UP_POSITION);
 	}
 	
-	public void moveCollectorUp() {
+	public void moveForkliftUp() {
 		collectorPiston.set(UP_POSITION);
 	}
 	

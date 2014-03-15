@@ -36,6 +36,22 @@ public abstract class CommandBase extends Command {
 		shooterSubsystem.updateDriverStation();
 		visionSubsystem.updateDriverStation();
 	}
+	
+	public static DriveSubsystem getDriveSubsystem() {
+		return driveSubsystem;
+	}
+	
+	public static CollectorSubsystem getCollectorSubsystem() {
+		return collectorSubsystem;
+	}
+	
+	public static ShooterSubsystem getShooterSubsystem() {
+		return shooterSubsystem;
+	}
+	
+	public static VisionSubsystem getVisionSubsystem() {
+		return visionSubsystem;
+	}
 
     public CommandBase(String name) {
         super(name);

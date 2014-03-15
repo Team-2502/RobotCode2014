@@ -20,12 +20,14 @@ import edu.wpi.first.wpilibj.command.WaitCommand;
  */
 public class AutonomousCommand extends CommandGroup {
 	
+	public static final double DEFAULT_WAIT = .4;
+	public static final double DEFAULT_WAIT_AFTER = .8;
 	private MoveRobotForward moveRobotForward;
 	private MoveRobotForward moveRobotForwardAfter;
 	
 	public AutonomousCommand() {
-		moveRobotForward = new MoveRobotForward(0);
-		moveRobotForwardAfter = new MoveRobotForward(0);
+		moveRobotForward = new MoveRobotForward(DEFAULT_WAIT);
+		moveRobotForwardAfter = new MoveRobotForward(DEFAULT_WAIT_AFTER);
 		// Activate the ring light for vision
 		addSequential(new ActivateRingLight());
 		// Latch and move forward
@@ -33,6 +35,8 @@ public class AutonomousCommand extends CommandGroup {
 		addSequential(moveRobotForward);
 		addSequential(new WaitCommand(1.5));
 //		addSequential(new WaitForHot(10));
+		// Deactivate ring light 'cause vision is done
+		addSequential(new DeactivateRingLight());
 		// SHOOT DA BALLS SHOW NO MERCY
 		addSequential(new ShootBall());
 		addSequential(new WaitCommand(.1));
@@ -52,8 +56,6 @@ public class AutonomousCommand extends CommandGroup {
 		addSequential(new WaitCommand(.5));
 		// Unwind to previous length
 		addSequential(new UnwindWinch());
-		// Deactivate ring light 'cause vision is done
-		addSequential(new DeactivateRingLight());
 	}
 	
 	public void setMovementForward(double time) {

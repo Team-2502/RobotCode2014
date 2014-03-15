@@ -13,6 +13,7 @@ public class CalibrateWinch extends CommandGroup {
 	
 	public CalibrateWinch() {
 		// Calibrates Encoder
+		addSequential(new ResetShooterEncoder());
 		addSequential(new CalibrateShooterEncoderTop());
 		// Shoots the Ball
 		addSequential(new ShootBall());
