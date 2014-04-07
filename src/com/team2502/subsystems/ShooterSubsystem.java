@@ -38,6 +38,7 @@ public class ShooterSubsystem extends Subsystem {
 	private double topWinchPosition = 1;
 	private double bottomWinchPosition = 0;
 	private double targetPosition;
+	private long lastCANRetry = -1;
 	
 	public ShooterSubsystem() {
 		initalizeCANJaguar();
@@ -51,6 +52,9 @@ public class ShooterSubsystem extends Subsystem {
 	}
 	
 	private boolean initalizeCANJaguar() {
+		if (lastCANRetry != -1 && System.currentTimeMillis() - lastCANRetry < 200)
+			return false;
+		lastCANRetry = System.currentTimeMillis();
 		for (int i = 0; i < 3; i++) {
 			try {
 				winch = new CANJaguar(RobotMap.SHOOTER_WINCH_CAN_PORT);
@@ -94,11 +98,11 @@ public class ShooterSubsystem extends Subsystem {
 	}
 	
 	public void moveWinchDown() {
-		controller.disable();
 		if (winch == null && !initalizeCANJaguar()) {
 			BlackBoxProtocol.log("Could not move winch down, CAN is not initialized");
 			return;
 		}
+		controller.disable();
 		for (int i = 0; i < 3; i++) {
 			try {
 				winch.setX(-WINCH_SPEED);
@@ -114,6 +118,9 @@ public class ShooterSubsystem extends Subsystem {
 	}
 	
 	public void moveWinchDownPID() {
+		if (controller == null && !initalizeCANJaguar()) {
+			return;
+		}
 		controller.setSetpoint(bottomWinchPosition);
 		double range = Math.abs(topWinchPosition - bottomWinchPosition);
 		controller.setAbsoluteTolerance(range * .01);
@@ -126,14 +133,10 @@ public class ShooterSubsystem extends Subsystem {
 	}
 	
 	public void moveWinchUpPID() {
+		if (controller == null && !initalizeCANJaguar()) {
+			return;
+		}
 		controller.setSetpoint(topWinchPosition);
-		double range = Math.abs(topWinchPosition - bottomWinchPosition);
-		controller.setAbsoluteTolerance(range * .01);
-		controller.setContinuous(false);
-		double p = SmartDashboard.getNumber("P");
-		double i = SmartDashboard.getNumber("I");
-		double d = SmartDashboard.getNumber("D");
-		controller.setPID(p, i, d);
 		controller.enable();
 	}
 	
@@ -142,11 +145,10 @@ public class ShooterSubsystem extends Subsystem {
 	}
 	
 	public void forceWinchUp() {
-		controller.disable();
-		if (winch == null && !initalizeCANJaguar()) {
-			BlackBoxProtocol.log("Could not move winch up, CAN is not initialized");
+		if (controller == null && !initalizeCANJaguar()) {
 			return;
 		}
+		controller.disable();
 		for (int i = 0; i < 3; i++) {
 			try {
 				winch.setX(WINCH_SPEED);
@@ -158,11 +160,10 @@ public class ShooterSubsystem extends Subsystem {
 	}
 	
 	public void stopWinch() {
-		controller.disable();
-		if (winch == null && !initalizeCANJaguar()) {
-			BlackBoxProtocol.log("Could not stop winch, CAN is not initialized");
+		if (controller == null && !initalizeCANJaguar()) {
 			return;
 		}
+		controller.disable();
 		for (int i = 0; i < 3; i++) {
 			try {
 				winch.disableControl();
@@ -245,8 +246,19 @@ public class ShooterSubsystem extends Subsystem {
 		latch.set(true);
 	}
 	
+	private void updateWinchData() {
+		double range = Math.abs(topWinchPosition - bottomWinchPosition);
+		controller.setAbsoluteTolerance(range * .01);
+		controller.setContinuous(false);
+		double p = SmartDashboard.getNumber("P");
+		double i = SmartDashboard.getNumber("I");
+		double d = SmartDashboard.getNumber("D");
+		controller.setPID(p, i, d);
+	}
+	
 	public void resetEncoder() {
 		winchEncoder.reset();
+		updateWinchData();
 	}
 	
 	public void setCurrentEncoderPositionAsBottom() {
@@ -254,6 +266,7 @@ public class ShooterSubsystem extends Subsystem {
 			return;
 		}
 		bottomWinchPosition = winchEncoder.getRaw();
+		updateWinchData();
 		BlackBoxProtocol.log("Bottom Winch Position: " + bottomWinchPosition);
 	}
 	
@@ -262,6 +275,7 @@ public class ShooterSubsystem extends Subsystem {
 			return;
 		}
 		topWinchPosition = winchEncoder.getRaw();
+		updateWinchData();
 		BlackBoxProtocol.log("Top Winch Position: " + topWinchPosition);
 	}
 	

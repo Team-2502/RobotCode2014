@@ -32,5 +32,7 @@ public class RobotMap {
 	public static final int COLLECTOR_DOWN_LIMIT      = 5; // Digital IO  
 	
 	public static final int VISION_RING_LIGHT         = 8; // Solenoid
+	public static final int VISION_HOT_TARGET         = 9; // Digital Input
+	public static final int VISION_START_PROCESSING   = 8; // Digital Output
 	
 }

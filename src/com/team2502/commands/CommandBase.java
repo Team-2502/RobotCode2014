@@ -15,6 +15,7 @@ import com.team2502.subsystems.VisionSubsystem;
 public abstract class CommandBase extends Command {
 	
 	private static OI oi;
+	private static long lastUpdate;
 	protected static DriveSubsystem driveSubsystem = new DriveSubsystem();
 	protected static ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
 	protected static VisionSubsystem visionSubsystem = new VisionSubsystem();
@@ -28,9 +29,13 @@ public abstract class CommandBase extends Command {
 		SmartDashboard.putData(shooterSubsystem);
 		SmartDashboard.putData(visionSubsystem);
 		SmartDashboard.putData(collectorSubsystem);
+		lastUpdate = System.currentTimeMillis();
     }
 	
 	public static void updateDriverStation() {
+		long latency = System.currentTimeMillis() - lastUpdate;
+		lastUpdate = System.currentTimeMillis();
+		SmartDashboard.putNumber("Command Latency", latency);
 		driveSubsystem.updateDriverStation();
 		collectorSubsystem.updateDriverStation();
 		shooterSubsystem.updateDriverStation();

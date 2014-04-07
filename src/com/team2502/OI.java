@@ -11,7 +11,9 @@ import com.team2502.commands.shooter.ShootAndReload;
 import com.team2502.commands.shooter.SlowFeedToAlliance;
 import com.team2502.commands.shooter.StartCompressor;
 import com.team2502.commands.shooter.UnlatchTheLatch;
+import com.team2502.commands.vision.ActivateProcessing;
 import com.team2502.commands.vision.ActivateRingLight;
+import com.team2502.commands.vision.DeactivateProcessing;
 import com.team2502.commands.vision.DeactivateRingLight;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
@@ -51,6 +53,8 @@ public class OI {
 	private static JoystickButton windWinchUpLeft;
 	private static JoystickButton windWinchDownLeft;
 	
+	private static JoystickButton startProcessingLeft;
+	
 	public static void init() {
 		joyDriveLeft = new Joystick(RobotMap.JOYSTICK_DRIVE_LEFT_PORT);
 		joyDriveRight = new Joystick(RobotMap.JOYSTICK_DRIVE_RIGHT_PORT);
@@ -66,6 +70,7 @@ public class OI {
 		startCompressorLeft = new JoystickButton(joyDriveLeft, 4);
 		slowFeedToAllianceLeft = new JoystickButton(joyDriveLeft, 3);
 		backupToggleForkliftLeft = new JoystickButton(joyDriveLeft, 5);
+		startProcessingLeft = new JoystickButton(joyDriveLeft, 10);
 		//wndWinchUpLeft = new JoystickButton(joyDriveLeft, 9);
 	}
 	
@@ -89,6 +94,8 @@ public class OI {
 		startCompressorLeft.whileHeld(new StartCompressor());
 		slowFeedToAllianceLeft.whenPressed(new SlowFeedToAlliance());
 		backupToggleForkliftLeft.whenPressed(new ToggleForklift());
+		startProcessingLeft.whileHeld(new ActivateProcessing());
+		startProcessingLeft.whenReleased(new DeactivateProcessing());
 	}
 	
 	private static void linkRightJoystickButtons() {

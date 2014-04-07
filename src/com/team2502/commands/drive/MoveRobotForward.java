@@ -22,6 +22,10 @@ public class MoveRobotForward extends CommandBase {
 		this.seconds = seconds;
 	}
 	
+	public double getTime() {
+		return seconds;
+	}
+	
 	protected void initialize() {
 		driveSubsystem.driveTank(SPEED * (seconds < 0 ? -1 : 1), SPEED * (seconds < 0 ? -1 : 1));
 		startedTime = System.currentTimeMillis();

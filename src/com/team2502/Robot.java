@@ -16,7 +16,6 @@ public class Robot extends IterativeRobot {
 	
 	private static final boolean COMPETITION_MODE = true;
 	private AutonomousCommand autonomousCommand;
-	private VisionUpdater updater;
 	
 	public static boolean isCompetitionMode() {
 		return DriverStation.getInstance().isFMSAttached() || COMPETITION_MODE;
@@ -26,20 +25,10 @@ public class Robot extends IterativeRobot {
 		if (!BlackBoxProtocol.isStarted() && DriverStation.getInstance().isNewControlData()) {
 			BlackBoxProtocol.start(new String[]{"10.25.2.5"}, 1180, 10);
 		}
-		if (!CommandBase.getVisionSubsystem().isStarted()) {
-			CommandBase.getVisionSubsystem().start();
-		}
-	}
-	
-	private void updateCommands() {
-//		if (!updater.isRunning())
-//			updater.start();
 	}
 	
 	public void robotInit() {
 		autonomousCommand = new AutonomousCommand();
-//		updater = new VisionUpdater();
-//		updater.setRunWhenDisabled(true);
 		
         // Initialize all subsystems
 		OI.init();
@@ -65,19 +54,16 @@ public class Robot extends IterativeRobot {
 	public void disabledInit() {
 		BlackBoxProtocol.log("Robot Disabled");
 		updateConnections();
-		updateCommands();
 	}
 	
 	public void disabledPeriodic() {
 		updateConnections();
-		updateCommands();
 		getWatchdog().feed();
 		CommandBase.updateDriverStation();
 	}
 	
 	public void autonomousInit() {
 		updateConnections();
-		updateCommands();
 		BlackBoxProtocol.log("Autonomous Mode Started");
 		autonomousCommand.setMovementForward(SmartDashboard.getNumber("Auto Movement Time"));
 		autonomousCommand.setAfterMovementForward(SmartDashboard.getNumber("Auto Movement Time After Shot"));
@@ -86,7 +72,6 @@ public class Robot extends IterativeRobot {
 	
 	public void autonomousPeriodic() {
 		updateConnections();
-		updateCommands();
 		getWatchdog().feed();
 		Scheduler.getInstance().run();
 		CommandBase.updateDriverStation();
@@ -94,14 +79,12 @@ public class Robot extends IterativeRobot {
 	
 	public void teleopInit() {
 		updateConnections();
-		updateCommands();
 		BlackBoxProtocol.log("Operator Control Mode Started");
 		autonomousCommand.cancel();
 	}
 	
 	public void teleopPeriodic() {
 		updateConnections();
-		updateCommands();
 		getWatchdog().feed();
 		Scheduler.getInstance().run();
 		CommandBase.updateDriverStation();
@@ -109,13 +92,11 @@ public class Robot extends IterativeRobot {
 	
 	public void testInit() {
 		updateConnections();
-		updateCommands();
 		BlackBoxProtocol.log("Testing Mode Started");
 	}
 	
 	public void testPeriodic() {
 		updateConnections();
-		updateCommands();
 		getWatchdog().feed();
 		LiveWindow.run();
 	}

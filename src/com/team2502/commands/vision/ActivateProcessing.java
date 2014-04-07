@@ -1,25 +1,19 @@
 package com.team2502.commands.vision;
 
 import com.team2502.commands.CommandBase;
-import com.team2502.subsystems.VisionSubsystem;
 
 /**
  *
- * @author josh
+ * @author Josh Larson
  */
-public class WaitForHot extends CommandBase {
+public class ActivateProcessing extends CommandBase {
 	
-	public WaitForHot() {
+	public ActivateProcessing() {
 		requires(visionSubsystem);
-	}
-	
-	public WaitForHot(double timeout) {
-		requires(visionSubsystem);
-		setTimeout(timeout);
 	}
 	
 	protected void initialize() {
-		
+		visionSubsystem.setProcessing(true);
 	}
 	
 	protected void execute() {
@@ -27,7 +21,7 @@ public class WaitForHot extends CommandBase {
 	}
 	
 	protected boolean isFinished() {
-		return isTimedOut() || visionSubsystem.isTargetHot();
+		return true;
 	}
 	
 	protected void end() {
@@ -35,6 +29,6 @@ public class WaitForHot extends CommandBase {
 	}
 	
 	protected void interrupted() {
-		end();
+		
 	}
 }

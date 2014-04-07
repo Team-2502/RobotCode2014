@@ -36,6 +36,7 @@ public class BlackBoxProtocol {
 		remotePort = port;
 		lastConnectionAttempt = new long[ips.length];
 		updateRate = (int)(1000 / updateRateHertz);
+		startAll();
 	}
 	
 	public static BlackBoxProtocol getInstance() {
