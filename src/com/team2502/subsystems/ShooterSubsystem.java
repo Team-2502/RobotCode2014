@@ -3,6 +3,7 @@ package com.team2502.subsystems;
 import com.team2502.RobotMap;
 import com.team2502.black_box.BlackBoxProtocol;
 
+import com.team2502.commands.shooter.StopWinch;
 import com.team2502.commands.shooter.WindWinchUp;
 import edu.wpi.first.wpilibj.AnalogChannel;
 import edu.wpi.first.wpilibj.Compressor;
@@ -34,6 +35,7 @@ public class ShooterSubsystem extends Subsystem {
 	private Solenoid latch;
 	private AnalogChannel loadedSensor;
 	private Compressor compressor;
+	private WinchSafetyThread winchSafety;
 	
 	private double topWinchPosition = 1;
 	private double bottomWinchPosition = 0;
@@ -41,6 +43,7 @@ public class ShooterSubsystem extends Subsystem {
 	private long lastCANRetry = -1;
 	
 	public ShooterSubsystem() {
+		winchSafety = new WinchSafetyThread();
 		initalizeCANJaguar();
 		latch = new Solenoid(RobotMap.SHOOTER_LATCH);
 		loadedSensor = new AnalogChannel(RobotMap.SHOOTER_LOADED_SENSOR);
@@ -63,6 +66,8 @@ public class ShooterSubsystem extends Subsystem {
 				winch.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
 				winch.disableControl();
 				initializeWinch();
+				if (!winchSafety.isRunning())
+					winchSafety.start();
 				return true;
 			} catch (CANTimeoutException e){
 				BlackBoxProtocol.log("CAN-Jaguar initilization failed: " + e.toString());
@@ -296,6 +301,53 @@ public class ShooterSubsystem extends Subsystem {
 			SmartDashboard.putNumber("Winch Ticks", winchEncoder.getRaw()/TICKS_PER_REVOLUTION);
 			SmartDashboard.putNumber("Winch Speed", winchEncoder.getRate()/TICKS_PER_REVOLUTION);
 			SmartDashboard.putNumber("PID Error", controller.getError());
+			try {
+				SmartDashboard.putNumber("Winch Current", winch.getOutputCurrent());
+				SmartDashboard.putNumber("Winch Voltage", winch.getOutputVoltage());
+			} catch (CANTimeoutException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private class WinchSafetyThread implements Runnable {
+		private Thread thread = new Thread(this);
+		private boolean running = false;
+		public void start() {
+			if (!running) {
+				running = true;
+				thread.start();
+			}
+		}
+		public void setRunning(boolean running) {
+			this.running = running;
+		}
+		public boolean isRunning() {
+			return running;
+		}
+		public void run() {
+			SmartDashboard.putNumber("Min Winch Current", 50);
+			SmartDashboard.putNumber("Max Winch Speed", 1.4);
+			StopWinch stopCommand = new StopWinch();
+			while (running) {
+				if (winchEncoder == null) {
+					try { Thread.sleep(100); } catch (InterruptedException e) { }
+					continue;
+				}
+				try {
+					double outputCurrent = winch.getOutputCurrent();
+					double winchSpeed = Math.abs(winchEncoder.getRate()/TICKS_PER_REVOLUTION);
+					double minWinchCurrent = SmartDashboard.getNumber("Min Winch Current");
+					double maxWinchSpeed = SmartDashboard.getNumber("Max Winch Speed");
+					if (outputCurrent >= minWinchCurrent && winchSpeed <= maxWinchSpeed) {
+						stopWinch();
+						stopCommand.start();
+					}
+				} catch (CANTimeoutException ex) {
+					
+				}
+				try { Thread.sleep(30); } catch (InterruptedException e) { }
+			}
 		}
 	}
 	

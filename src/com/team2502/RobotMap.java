@@ -16,7 +16,7 @@ public class RobotMap {
 	
 	public static final int SHOOTER_LIMIT_SWITCH_UP   = 1; // Digital IO  
 	public static final int SHOOTER_LIMIT_SWITCH_DOWN = 2; // Digital IO  
-	public static final int SHOOTER_LATCH             = 2; // Solenoid    
+	public static final int SHOOTER_LATCH             = 2; // Sole`noid    
 	public static final int SHOOTER_LOADED_SENSOR     = 3; // Analog      
 	public static final int SHOOTER_WINCH_CAN_PORT    = 9; // CAN Jaguar  
 	public static final int SHOOTER_WINCH_ENCODER_A   = 4; // Digital IO
@@ -30,6 +30,8 @@ public class RobotMap {
 	public static final int COLLECTOR_SENSOR_TWO_PORT = 2; // Analog      
 	public static final int COLLECTOR_UP_LIMIT        = 4; // Digital IO  
 	public static final int COLLECTOR_DOWN_LIMIT      = 5; // Digital IO  
+	
+	public static final int CATCHER_ARM_SOLENOID      = 6; // Solenoid
 	
 	public static final int VISION_RING_LIGHT         = 8; // Solenoid
 	public static final int VISION_HOT_TARGET         = 9; // Digital Input

@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.team2502.OI;
+import com.team2502.subsystems.CatcherSubsystem;
 import com.team2502.subsystems.CollectorSubsystem;
 import com.team2502.subsystems.DriveSubsystem;
 import com.team2502.subsystems.ShooterSubsystem;
@@ -20,6 +21,7 @@ public abstract class CommandBase extends Command {
 	protected static ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
 	protected static VisionSubsystem visionSubsystem = new VisionSubsystem();
 	protected static CollectorSubsystem collectorSubsystem = new CollectorSubsystem();
+	protected static CatcherSubsystem catcherSubsystem = new CatcherSubsystem();
 	
 	public static void init() {
         oi = new OI();
@@ -29,6 +31,7 @@ public abstract class CommandBase extends Command {
 		SmartDashboard.putData(shooterSubsystem);
 		SmartDashboard.putData(visionSubsystem);
 		SmartDashboard.putData(collectorSubsystem);
+		SmartDashboard.putData(catcherSubsystem);
 		lastUpdate = System.currentTimeMillis();
     }
 	
@@ -40,6 +43,7 @@ public abstract class CommandBase extends Command {
 		collectorSubsystem.updateDriverStation();
 		shooterSubsystem.updateDriverStation();
 		visionSubsystem.updateDriverStation();
+		catcherSubsystem.updateDriverStation();
 	}
 	
 	public static DriveSubsystem getDriveSubsystem() {
@@ -57,7 +61,11 @@ public abstract class CommandBase extends Command {
 	public static VisionSubsystem getVisionSubsystem() {
 		return visionSubsystem;
 	}
-
+	
+	public static CatcherSubsystem getCatcherSubsystem() {
+		return catcherSubsystem;
+	}
+	
     public CommandBase(String name) {
         super(name);
     }

@@ -1,6 +1,6 @@
 package com.team2502;
 
-import com.team2502.commands.collector.ToggleAndWaitForBall;
+import com.team2502.commands.catcher.ToggleCatcherArms;
 import com.team2502.commands.collector.ToggleForklift;
 import com.team2502.commands.drive.ToggleDriveTrain;
 import com.team2502.commands.shooter.CalibrateWinch;
@@ -24,7 +24,6 @@ public class OI {
 	public static Joystick joyDriveLeft;
 	public static Joystick joyDriveRight;
 	
-	private static JoystickButton switchDriveTrainLeft;
 	private static JoystickButton switchDriveTrainRight;
 	
 	private static JoystickButton toggleForkliftLeft;
@@ -55,6 +54,8 @@ public class OI {
 	
 	private static JoystickButton startProcessingLeft;
 	
+	private static JoystickButton catcherToggleLeft;
+	
 	public static void init() {
 		joyDriveLeft = new Joystick(RobotMap.JOYSTICK_DRIVE_LEFT_PORT);
 		joyDriveRight = new Joystick(RobotMap.JOYSTICK_DRIVE_RIGHT_PORT);
@@ -65,12 +66,12 @@ public class OI {
 	}
 	
 	private static void createLeftJoystickButtons() {
-		switchDriveTrainLeft = new JoystickButton(joyDriveLeft, 2);
 		toggleForkliftLeft = new JoystickButton(joyDriveLeft, 1);
 		startCompressorLeft = new JoystickButton(joyDriveLeft, 4);
 		slowFeedToAllianceLeft = new JoystickButton(joyDriveLeft, 3);
 		backupToggleForkliftLeft = new JoystickButton(joyDriveLeft, 5);
 		startProcessingLeft = new JoystickButton(joyDriveLeft, 10);
+		catcherToggleLeft = new JoystickButton(joyDriveLeft, 2);
 		//wndWinchUpLeft = new JoystickButton(joyDriveLeft, 9);
 	}
 	
@@ -89,13 +90,13 @@ public class OI {
 	}
 	
 	private static void linkLeftJoystickButtons() {
-		switchDriveTrainLeft.whenPressed(new ToggleDriveTrain());
 		toggleForkliftLeft.whenPressed(new ToggleForklift());
 		startCompressorLeft.whileHeld(new StartCompressor());
 		slowFeedToAllianceLeft.whenPressed(new SlowFeedToAlliance());
 		backupToggleForkliftLeft.whenPressed(new ToggleForklift());
 		startProcessingLeft.whileHeld(new ActivateProcessing());
 		startProcessingLeft.whenReleased(new DeactivateProcessing());
+		catcherToggleLeft.whenPressed(new ToggleCatcherArms());
 	}
 	
 	private static void linkRightJoystickButtons() {
