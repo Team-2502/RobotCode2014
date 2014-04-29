@@ -1,5 +1,6 @@
 package com.team2502.commands.catcher;
 
+import com.team2502.black_box.BlackBoxProtocol;
 import com.team2502.commands.CommandBase;
 
 /**
@@ -17,8 +18,10 @@ public class ToggleCatcherArms extends CommandBase {
 	protected void initialize() {
 		armsOut = catcherSubsystem.isArmsOut();
 		if (armsOut) {
+			BlackBoxProtocol.log("Catcher in");
 			catcherSubsystem.moveArmsIn();
 		} else {
+			BlackBoxProtocol.log("Catcher out");
 			catcherSubsystem.moveArmsOut();
 		}
 	}

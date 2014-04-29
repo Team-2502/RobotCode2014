@@ -1,5 +1,6 @@
 package com.team2502.commands.collector;
 
+import com.team2502.black_box.BlackBoxProtocol;
 import com.team2502.commands.CommandBase;
 
 /**
@@ -13,10 +14,13 @@ public class ToggleForklift extends CommandBase {
 	}
 	
 	protected void initialize() {
-		if (collectorSubsystem.isForkliftUp())
+		if (collectorSubsystem.isForkliftUp()) {
+			BlackBoxProtocol.log("Forklift down");
 			collectorSubsystem.moveForkliftDown();
-		else
+		} else {
+			BlackBoxProtocol.log("Forklift up");
 			collectorSubsystem.moveForkliftUp();
+		}
 	}
 	
 	protected void execute() {

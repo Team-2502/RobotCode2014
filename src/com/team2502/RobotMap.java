@@ -26,10 +26,6 @@ public class RobotMap {
 	public static final int COMPRESSOR_RELAY          = 1; // Relay       Black
 	
 	public static final int COLLECTOR_PISTON_PORT     = 5; // Solenoid    
-	public static final int COLLECTOR_SENSOR_ONE_PORT = 1; // Analog      
-	public static final int COLLECTOR_SENSOR_TWO_PORT = 2; // Analog      
-	public static final int COLLECTOR_UP_LIMIT        = 4; // Digital IO  
-	public static final int COLLECTOR_DOWN_LIMIT      = 5; // Digital IO  
 	
 	public static final int CATCHER_ARM_SOLENOID      = 6; // Solenoid
 	

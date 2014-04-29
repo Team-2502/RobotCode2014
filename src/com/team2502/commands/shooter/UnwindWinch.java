@@ -1,5 +1,6 @@
 package com.team2502.commands.shooter;
 
+import com.team2502.black_box.BlackBoxProtocol;
 import com.team2502.commands.CommandBase;
 
 /**
@@ -8,11 +9,15 @@ import com.team2502.commands.CommandBase;
  */
 public class UnwindWinch extends CommandBase {
 	
+	private boolean isUpOnInitialize;
+	
 	public UnwindWinch() {
 		requires(shooterSubsystem);
 	}
 	
 	protected void end() {
+		if (!isUpOnInitialize)
+			BlackBoxProtocol.log(isFinished() ? "Winch is up" : "Winch pull-up interrupted");
 		shooterSubsystem.stopWinch();
 	}
 	
@@ -22,6 +27,7 @@ public class UnwindWinch extends CommandBase {
 	
 	protected void initialize() {
 		shooterSubsystem.moveWinchUp();
+		isUpOnInitialize = isFinished();
 	}
 	
 	protected void interrupted() {

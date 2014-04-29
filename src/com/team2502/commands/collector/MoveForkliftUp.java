@@ -1,5 +1,6 @@
 package com.team2502.commands.collector;
 
+import com.team2502.black_box.BlackBoxProtocol;
 import com.team2502.commands.CommandBase;
 
 /**
@@ -21,6 +22,7 @@ public class MoveForkliftUp extends CommandBase {
 	}
 	
 	protected void initialize() {
+		BlackBoxProtocol.log("Forklift up");
 		collectorSubsystem.moveForkliftUp();
 	}
 	

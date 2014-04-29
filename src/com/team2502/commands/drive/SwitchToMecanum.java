@@ -1,5 +1,6 @@
 package com.team2502.commands.drive;
 
+import com.team2502.black_box.BlackBoxProtocol;
 import com.team2502.commands.CommandBase;
 
 /**
@@ -14,6 +15,7 @@ public class SwitchToMecanum extends CommandBase {
 	
 	protected void initialize() {
 		driveSubsystem.switchToMecanum();
+		BlackBoxProtocol.log("Switched to mecanum");
 	}
 	
 	protected void execute() {

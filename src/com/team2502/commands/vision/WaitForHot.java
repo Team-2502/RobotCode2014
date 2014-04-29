@@ -1,5 +1,6 @@
 package com.team2502.commands.vision;
 
+import com.team2502.black_box.BlackBoxProtocol;
 import com.team2502.commands.CommandBase;
 import com.team2502.subsystems.VisionSubsystem;
 
@@ -19,7 +20,7 @@ public class WaitForHot extends CommandBase {
 	}
 	
 	protected void initialize() {
-		
+		BlackBoxProtocol.log("Waiting for hot goal...");
 	}
 	
 	protected void execute() {
@@ -31,7 +32,7 @@ public class WaitForHot extends CommandBase {
 	}
 	
 	protected void end() {
-		
+		BlackBoxProtocol.log("Hot goal found. [" + (isTimedOut() ? "Timed Out" : "Hot Target") + "]");
 	}
 	
 	protected void interrupted() {

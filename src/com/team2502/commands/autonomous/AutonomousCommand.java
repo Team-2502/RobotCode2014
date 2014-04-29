@@ -1,5 +1,6 @@
 package com.team2502.commands.autonomous;
 
+import com.team2502.commands.catcher.MoveCatcherArmsOut;
 import com.team2502.commands.drive.MoveRobotForward;
 import com.team2502.commands.shooter.CalibrateShooterEncoderBottom;
 import com.team2502.commands.shooter.CalibrateShooterEncoderTop;
@@ -30,11 +31,12 @@ public class AutonomousCommand extends CommandGroup {
 	
 	public AutonomousCommand() {
 		// Latch and move forward
-		addSequential(new ActivateProcessing());
 		addSequential(new ActivateRingLight());
 		addSequential(new LatchTheLatch());
 		addSequential(moveRobotForward);
+		addParallel(new MoveCatcherArmsOut());
 		addSequential(new WaitCommand(.5));
+		addSequential(new ActivateProcessing());
 		addSequential(new WaitForHot(5-moveRobotForward.getTime()-.5));
 		// SHOOT DA BALLS SHOW NO MERCY
 		addSequential(new ShootBall());

@@ -33,7 +33,6 @@ public class ShooterSubsystem extends Subsystem {
 	private Encoder winchEncoder;
 	private CANJaguar winch;
 	private Solenoid latch;
-	private AnalogChannel loadedSensor;
 	private Compressor compressor;
 	private WinchSafetyThread winchSafety;
 	
@@ -46,7 +45,6 @@ public class ShooterSubsystem extends Subsystem {
 		winchSafety = new WinchSafetyThread();
 		initalizeCANJaguar();
 		latch = new Solenoid(RobotMap.SHOOTER_LATCH);
-		loadedSensor = new AnalogChannel(RobotMap.SHOOTER_LOADED_SENSOR);
 		compressor = new Compressor(RobotMap.COMPRESSOR_SWITCH, RobotMap.COMPRESSOR_RELAY);
 		compressor.start();
 		SmartDashboard.putNumber("P", P);
@@ -181,13 +179,13 @@ public class ShooterSubsystem extends Subsystem {
 	}
 	
 	public boolean isWinchProgressDown() {
-		return getWinchProgress() >= .98;
+		return (getWinchProgress() >= .98);
 	}
 	
 	public boolean isWinchProgressUp() {
-		return getWinchProgress() <= 0.02;
+		return (getWinchProgress() <= 0.02);
 	}
-
+	
 	public boolean isDown() {
 		if (winch == null && !initalizeCANJaguar()) {
 			BlackBoxProtocol.log("Could not detect reverse limit, CAN is not initialized");
@@ -202,7 +200,7 @@ public class ShooterSubsystem extends Subsystem {
 		}
 		return false;
 	}
-
+	
 	public boolean isUp() {
 		if (winch == null && !initalizeCANJaguar()) {
 			BlackBoxProtocol.log("Could not detect forward limit, CAN is not initialized");
@@ -210,16 +208,12 @@ public class ShooterSubsystem extends Subsystem {
 		}
 		for (int i = 0; i < 3; i++) {
 			try {
-				return !winch.getForwardLimitOK();
+				return winch.getForwardLimitOK();
 			} catch (CANTimeoutException e){
 				BlackBoxProtocol.log("CAN-Jaguar communication failed (isUp): " + e.toString());
 			}
 		}
 		return false;
-	}
-
-	public boolean isLoaded() {
-		return (loadedSensor.getVoltage() > LOADED_THRESHOLD);
 	}
 	
 	public boolean isLatched() {
@@ -294,7 +288,6 @@ public class ShooterSubsystem extends Subsystem {
 	
 	public void updateDriverStation() {
 		SmartDashboard.putBoolean("Latched", !latch.get());
-		SmartDashboard.putNumber("Ball Detector", loadedSensor.getVoltage());
 		SmartDashboard.putBoolean("Compressing", compressor.enabled());
 		SmartDashboard.putNumber("Winch Position", getWinchProgress()*100);
 		if (winchEncoder != null) {

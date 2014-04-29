@@ -1,5 +1,6 @@
 package com.team2502.commands.drive;
 
+import com.team2502.black_box.BlackBoxProtocol;
 import com.team2502.commands.CommandBase;
 
 /**
@@ -21,6 +22,11 @@ public class ToggleDriveTrain extends CommandBase {
 	
 	protected void execute() {
 		switchSucceed = driveSubsystem.toggleDriveTrain();
+		if (driveSubsystem.isTraction()) {
+			BlackBoxProtocol.log("Switched to traction");
+		} else {
+			BlackBoxProtocol.log("Switched to mecanum");
+		}
 	}
 	
 	protected boolean isFinished() {

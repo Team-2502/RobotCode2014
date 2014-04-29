@@ -263,11 +263,9 @@ public class DriveSubsystem extends Subsystem {
 	
 	public final boolean toggleDriveTrain() {
 		if (isTraction) {
-			BlackBoxProtocol.log("Switching drive train from Traction to Mecanum");
 			switchToMecanum();
 			return true;
 		} else {
-			BlackBoxProtocol.log("Switching drive train from Mecanum to Traction");
 			return switchToTraction();
 		}
 	}

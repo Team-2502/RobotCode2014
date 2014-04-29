@@ -1,5 +1,6 @@
 package com.team2502.commands.shooter;
 
+import com.team2502.black_box.BlackBoxProtocol;
 import com.team2502.commands.CommandBase;
 
 /**
@@ -24,6 +25,7 @@ public class ShootBall extends CommandBase {
 	protected void initialize() {
 //		if (shooterSubsystem.isLoaded() && shooterSubsystem.isLatched())
 //			shooterSubsystem.deactivateLatch();
+		BlackBoxProtocol.log("Shooting ball");
 		shooterSubsystem.deactivateLatch();
 	}
 	

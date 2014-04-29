@@ -1,21 +1,21 @@
-package com.team2502.commands.vision;
+package com.team2502.commands;
 
 import com.team2502.black_box.BlackBoxProtocol;
-import com.team2502.commands.CommandBase;
 
 /**
  *
  * @author Josh Larson
  */
-public class ActivateProcessing extends CommandBase {
+public class LogToBlackBox extends CommandBase {
 	
-	public ActivateProcessing() {
-		requires(visionSubsystem);
+	private String message;
+	
+	public LogToBlackBox(String message) {
+		this.message = message;
 	}
 	
 	protected void initialize() {
-		BlackBoxProtocol.log("Started pi processing");
-		visionSubsystem.setProcessing(true);
+		BlackBoxProtocol.log(message);
 	}
 	
 	protected void execute() {

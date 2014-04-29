@@ -1,5 +1,6 @@
 package com.team2502.commands.drive;
 
+import com.team2502.black_box.BlackBoxProtocol;
 import com.team2502.commands.CommandBase;
 
 /**
@@ -17,6 +18,7 @@ public class SwitchToTraction extends CommandBase {
 	
 	protected void initialize() {
 		switchSucceed = driveSubsystem.switchToTraction();
+		BlackBoxProtocol.log("Switched to traction");
 	}
 	
 	protected void execute() {

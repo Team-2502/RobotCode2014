@@ -1,5 +1,6 @@
 package com.team2502.commands.catcher;
 
+import com.team2502.black_box.BlackBoxProtocol;
 import com.team2502.commands.CommandBase;
 
 /**
@@ -13,6 +14,7 @@ public class MoveCatcherArmsOut extends CommandBase {
 	}
 	
 	protected void initialize() {
+		BlackBoxProtocol.log("Catcher out");
 		catcherSubsystem.moveArmsOut();
 	}
 	
