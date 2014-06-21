@@ -1,17 +1,22 @@
 package com.team2502.subsystems;
 
+import com.team2502.CANJaguarSafety;
 import com.team2502.RobotMap;
 import com.team2502.black_box.BlackBoxProtocol;
 
+import com.team2502.commands.LogToBlackBox;
 import com.team2502.commands.shooter.StopWinch;
 import com.team2502.commands.shooter.WindWinchUp;
 import edu.wpi.first.wpilibj.AnalogChannel;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.CANJaguar;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.Relay.Value;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.buttons.Button;
+import edu.wpi.first.wpilibj.buttons.DigitalIOButton;
 import edu.wpi.first.wpilibj.can.CANTimeoutException;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -29,21 +34,31 @@ public class ShooterSubsystem extends Subsystem {
 	private static final int TICKS_PER_REVOLUTION = 360;
 	private static final double LOADED_THRESHOLD = -1000;  // Analog trigger threshold 
 	private static final double WINCH_SPEED = 1;  // Winch speed (between -1 and 1)
+	
 	private PIDController controller;
 	private Encoder winchEncoder;
-	private CANJaguar winch;
+	private CANJaguarSafety winch;
 	private Solenoid latch;
 	private Compressor compressor;
 	private WinchSafetyThread winchSafety;
+	private DigitalIOButton firedLimit;
+	private CANLimitButton canLimitBottom;
 	
 	private double topWinchPosition = 1;
 	private double bottomWinchPosition = 0;
 	private double targetPosition;
-	private long lastCANRetry = -1;
+//	private long lastCANRetry = -1;
+	private boolean canInitialized = false;
+	private boolean calibratedTop = false;
+	private boolean calibratedBottom = false;
 	
 	public ShooterSubsystem() {
 		winchSafety = new WinchSafetyThread();
 		initalizeCANJaguar();
+		firedLimit = new DigitalIOButton(RobotMap.SHOOTER_FIRED_LIMIT);
+		canLimitBottom = new CANLimitButton(false);
+		firedLimit.whenPressed(new LogToBlackBox("CAN Button hit top"));
+		canLimitBottom.whenPressed(new LogToBlackBox("CAN Button hit bottom"));
 		latch = new Solenoid(RobotMap.SHOOTER_LATCH);
 		compressor = new Compressor(RobotMap.COMPRESSOR_SWITCH, RobotMap.COMPRESSOR_RELAY);
 		compressor.start();
@@ -53,12 +68,14 @@ public class ShooterSubsystem extends Subsystem {
 	}
 	
 	private boolean initalizeCANJaguar() {
-		if (lastCANRetry != -1 && System.currentTimeMillis() - lastCANRetry < 200)
-			return false;
-		lastCANRetry = System.currentTimeMillis();
-		for (int i = 0; i < 3; i++) {
-			try {
-				winch = new CANJaguar(RobotMap.SHOOTER_WINCH_CAN_PORT);
+//		if (lastCANRetry != -1 && System.currentTimeMillis() - lastCANRetry < 200) {
+//			canInitialized = false;
+//			return false;
+//		}
+//		lastCANRetry = System.currentTimeMillis();
+//		for (int i = 0; i < 3; i++) {
+//			try {
+				winch = new CANJaguarSafety(RobotMap.SHOOTER_WINCH_CAN_PORT);
 				winch.configEncoderCodesPerRev(360);
 				winch.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
 				winch.changeControlMode(CANJaguar.ControlMode.kPercentVbus);
@@ -66,12 +83,14 @@ public class ShooterSubsystem extends Subsystem {
 				initializeWinch();
 				if (!winchSafety.isRunning())
 					winchSafety.start();
+				canInitialized = true;
 				return true;
-			} catch (CANTimeoutException e){
-				BlackBoxProtocol.log("CAN-Jaguar initilization failed: " + e.toString());
-			}
-		}
-		return false;
+//			} catch (CANTimeoutException e){
+//				BlackBoxProtocol.log("CAN-Jaguar initilization failed: " + e.toString());
+//			}
+//		}
+//		canInitialized = false;
+//		return false;
 	}
 	
 	private void initializeWinch() {
@@ -101,19 +120,19 @@ public class ShooterSubsystem extends Subsystem {
 	}
 	
 	public void moveWinchDown() {
-		if (winch == null && !initalizeCANJaguar()) {
-			BlackBoxProtocol.log("Could not move winch down, CAN is not initialized");
-			return;
-		}
+//		if (winch == null && !initalizeCANJaguar()) {
+//			BlackBoxProtocol.log("Could not move winch down, CAN is not initialized");
+//			return;
+//		}
 		controller.disable();
-		for (int i = 0; i < 3; i++) {
-			try {
+//		for (int i = 0; i < 3; i++) {
+//			try {
 				winch.setX(-WINCH_SPEED);
-				break;
-			} catch (CANTimeoutException e){
-				BlackBoxProtocol.log("CAN-Jaguar communication failed (moveWinchDown): " + e.toString());
-			}
-		}
+//				break;
+//			} catch (CANTimeoutException e){
+//				BlackBoxProtocol.log("CAN-Jaguar communication failed (moveWinchDown): " + e.toString());
+//			}
+//		}
 	}
 	
 	public void moveWinchUp() {
@@ -121,9 +140,9 @@ public class ShooterSubsystem extends Subsystem {
 	}
 	
 	public void moveWinchDownPID() {
-		if (controller == null && !initalizeCANJaguar()) {
-			return;
-		}
+//		if (controller == null && !initalizeCANJaguar()) {
+//			return;
+//		}
 		controller.setSetpoint(bottomWinchPosition);
 		double range = Math.abs(topWinchPosition - bottomWinchPosition);
 		controller.setAbsoluteTolerance(range * .01);
@@ -136,9 +155,9 @@ public class ShooterSubsystem extends Subsystem {
 	}
 	
 	public void moveWinchUpPID() {
-		if (controller == null && !initalizeCANJaguar()) {
-			return;
-		}
+//		if (controller == null && !initalizeCANJaguar()) {
+//			return;
+//		}
 		controller.setSetpoint(topWinchPosition);
 		controller.enable();
 	}
@@ -148,34 +167,34 @@ public class ShooterSubsystem extends Subsystem {
 	}
 	
 	public void forceWinchUp() {
-		if (controller == null && !initalizeCANJaguar()) {
-			return;
-		}
+//		if (controller == null && !initalizeCANJaguar()) {
+//			return;
+//		}
 		controller.disable();
-		for (int i = 0; i < 3; i++) {
-			try {
+//		for (int i = 0; i < 3; i++) {
+//			try {
 				winch.setX(WINCH_SPEED);
-				break;
-			} catch (CANTimeoutException e){
-				BlackBoxProtocol.log("CAN-Jaguar communication failed (moveWinchUp): " + e.toString());
-			}
-		}
+//				break;
+//			} catch (CANTimeoutException e){
+//				BlackBoxProtocol.log("CAN-Jaguar communication failed (moveWinchUp): " + e.toString());
+//			}
+//		}
 	}
 	
 	public void stopWinch() {
-		if (controller == null && !initalizeCANJaguar()) {
-			return;
-		}
+//		if (controller == null && !initalizeCANJaguar()) {
+//			return;
+//		}
 		controller.disable();
-		for (int i = 0; i < 3; i++) {
-			try {
+//		for (int i = 0; i < 3; i++) {
+//			try {
 				winch.disableControl();
 				winch.setX(0);
-				break;
-			} catch (CANTimeoutException e){
-				BlackBoxProtocol.log("CAN-Jaguar communication failed (stopWinch): " + e.toString());
-			}
-		}
+//				break;
+//			} catch (CANTimeoutException e){
+//				BlackBoxProtocol.log("CAN-Jaguar communication failed (stopWinch): " + e.toString());
+//			}
+//		}
 	}
 	
 	public boolean isWinchProgressDown() {
@@ -187,33 +206,33 @@ public class ShooterSubsystem extends Subsystem {
 	}
 	
 	public boolean isDown() {
-		if (winch == null && !initalizeCANJaguar()) {
-			BlackBoxProtocol.log("Could not detect reverse limit, CAN is not initialized");
-			return false;
-		}
-		for (int i = 0; i < 3; i++) {
-			try {
+//		if (winch == null && !initalizeCANJaguar()) {
+//			BlackBoxProtocol.log("Could not detect reverse limit, CAN is not initialized");
+//			return false;
+//		}
+//		for (int i = 0; i < 3; i++) {
+//			try {
 				return !winch.getReverseLimitOK();
-			} catch (CANTimeoutException e){
-				BlackBoxProtocol.log("CAN-Jaguar communication failed (isDown): " + e.toString());
-			}
-		}
-		return false;
+//			} catch (CANTimeoutException e){
+//				BlackBoxProtocol.log("CAN-Jaguar communication failed (isDown): " + e.toString());
+//			}
+//		}
+//		return false;
 	}
 	
 	public boolean isUp() {
-		if (winch == null && !initalizeCANJaguar()) {
-			BlackBoxProtocol.log("Could not detect forward limit, CAN is not initialized");
-			return false;
-		}
-		for (int i = 0; i < 3; i++) {
-			try {
+//		if (winch == null && !initalizeCANJaguar()) {
+//			BlackBoxProtocol.log("Could not detect forward limit, CAN is not initialized");
+//			return false;
+//		}
+//		for (int i = 0; i < 3; i++) {
+//			try {
 				return winch.getForwardLimitOK();
-			} catch (CANTimeoutException e){
-				BlackBoxProtocol.log("CAN-Jaguar communication failed (isUp): " + e.toString());
-			}
-		}
-		return false;
+//			} catch (CANTimeoutException e){
+//				BlackBoxProtocol.log("CAN-Jaguar communication failed (isUp): " + e.toString());
+//			}
+//		}
+//		return false;
 	}
 	
 	public boolean isLatched() {
@@ -222,9 +241,9 @@ public class ShooterSubsystem extends Subsystem {
 	
 	public double getWinchProgress() {
 		double progress = 0;
-		if (winchEncoder == null && !initalizeCANJaguar()) {
-			return progress;
-		}
+//		if (winchEncoder == null && !initalizeCANJaguar()) {
+//			return progress;
+//		}
 		if (bottomWinchPosition > topWinchPosition) {
 			if (bottomWinchPosition-topWinchPosition == 0)
 				return 0;
@@ -261,18 +280,18 @@ public class ShooterSubsystem extends Subsystem {
 	}
 	
 	public void setCurrentEncoderPositionAsBottom() {
-		if (winchEncoder == null && !initalizeCANJaguar()) {
-			return;
-		}
+//		if (winchEncoder == null && !initalizeCANJaguar()) {
+//			return;
+//		}
 		bottomWinchPosition = winchEncoder.getRaw();
 		updateWinchData();
 		BlackBoxProtocol.log("Bottom Winch Position: " + bottomWinchPosition);
 	}
 	
 	public void setCurrentEncoderPositionAsTop() {
-		if (winchEncoder == null && !initalizeCANJaguar()) {
-			return;
-		}
+//		if (winchEncoder == null && !initalizeCANJaguar()) {
+//			return;
+//		}
 		topWinchPosition = winchEncoder.getRaw();
 		updateWinchData();
 		BlackBoxProtocol.log("Top Winch Position: " + topWinchPosition);
@@ -290,16 +309,18 @@ public class ShooterSubsystem extends Subsystem {
 		SmartDashboard.putBoolean("Latched", !latch.get());
 		SmartDashboard.putBoolean("Compressing", compressor.enabled());
 		SmartDashboard.putNumber("Winch Position", getWinchProgress()*100);
+		SmartDashboard.putBoolean("Top Calibrated", calibratedTop);
+		SmartDashboard.putBoolean("Bottom Calibrated", calibratedBottom);
 		if (winchEncoder != null) {
 			SmartDashboard.putNumber("Winch Ticks", winchEncoder.getRaw()/TICKS_PER_REVOLUTION);
 			SmartDashboard.putNumber("Winch Speed", winchEncoder.getRate()/TICKS_PER_REVOLUTION);
 			SmartDashboard.putNumber("PID Error", controller.getError());
-			try {
+//			try {
 				SmartDashboard.putNumber("Winch Current", winch.getOutputCurrent());
 				SmartDashboard.putNumber("Winch Voltage", winch.getOutputVoltage());
-			} catch (CANTimeoutException e) {
-				e.printStackTrace();
-			}
+//			} catch (CANTimeoutException e) {
+//				e.printStackTrace();
+//			}
 		}
 	}
 	
@@ -327,20 +348,44 @@ public class ShooterSubsystem extends Subsystem {
 					try { Thread.sleep(100); } catch (InterruptedException e) { }
 					continue;
 				}
-				try {
+//				try {
 					double outputCurrent = winch.getOutputCurrent();
 					double winchSpeed = Math.abs(winchEncoder.getRate()/TICKS_PER_REVOLUTION);
 					double minWinchCurrent = SmartDashboard.getNumber("Min Winch Current");
 					double maxWinchSpeed = SmartDashboard.getNumber("Max Winch Speed");
 					if (outputCurrent >= minWinchCurrent && winchSpeed <= maxWinchSpeed) {
+						BlackBoxProtocol.log("Safety triggered for winch!");
 						stopWinch();
 						stopCommand.start();
 					}
-				} catch (CANTimeoutException ex) {
-					
-				}
+//				} catch (CANTimeoutException ex) {
+//					
+//				}
 				try { Thread.sleep(30); } catch (InterruptedException e) { }
 			}
+		}
+	}
+	
+	private class CANLimitButton extends Button {
+		
+		private boolean forwardLimit;
+		
+		public CANLimitButton(boolean forward) {
+			forwardLimit = forward;
+		}
+		
+		public boolean get() {
+			if (!canInitialized || winch == null)
+				return false;
+//			try {
+				if (forwardLimit)
+					return !winch.getForwardLimitOK();
+				else
+					return !winch.getReverseLimitOK();
+//			} catch (CANTimeoutException e){
+//				
+//			}
+//			return false;
 		}
 	}
 	
