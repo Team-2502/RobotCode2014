@@ -14,13 +14,12 @@ public class RobotMap {
 	public static final int DRIVE_BACK_RIGHT          = 4; // PWM         Blue
 	public static final int DRIVE_TRAIN_SWITCHER      = 3; // Solenoid
 	
-	public static final int SHOOTER_LIMIT_SWITCH_UP   = 1; // Digital IO  
-	public static final int SHOOTER_LIMIT_SWITCH_DOWN = 2; // Digital IO  
-	public static final int SHOOTER_LATCH             = 2; // Sole`noid    
+	public static final int SHOOTER_LATCH             = 2; // Solenoid    
 	public static final int SHOOTER_LOADED_SENSOR     = 3; // Analog      
 	public static final int SHOOTER_WINCH_CAN_PORT    = 9; // CAN Jaguar  
 	public static final int SHOOTER_WINCH_ENCODER_A   = 4; // Digital IO
 	public static final int SHOOTER_WINCH_ENCODER_B   = 5; // Digital IO
+	public static final int SHOOTER_FIRED_LIMIT       = 10;// Digital IO
 	
 	public static final int COMPRESSOR_SWITCH         = 3; // Digital IO  
 	public static final int COMPRESSOR_RELAY          = 1; // Relay       Black

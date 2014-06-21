@@ -23,7 +23,7 @@ public class Robot extends IterativeRobot {
 	
 	private void updateConnections() {
 		if (!BlackBoxProtocol.isStarted() && DriverStation.getInstance().isNewControlData()) {
-			BlackBoxProtocol.start(new String[]{"10.25.2.5"}, 1180, 10);
+			BlackBoxProtocol.start(new String[]{"10.25.2.5", "10.25.2.15"}, 1180, 10);
 		}
 	}
 	

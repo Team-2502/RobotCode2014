@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class DriveSubsystem extends Subsystem {
 	
-	private static final double MOTOR_THRESHOLD = 0.04;
+	private static final double MOTOR_THRESHOLD = 0.06;
 	private static final double FORWARD_SENSITIVITY = 1;
 	private static final double TURN_SENSITIVITY = 0.8;
 	private static final double STRAFE_SENSITIVITY = 1;
