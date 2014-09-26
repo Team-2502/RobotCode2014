@@ -38,6 +38,7 @@ public class Robot extends IterativeRobot {
 		getWatchdog().setExpiration(500);
 		BlackBoxProtocol.initialize();
 		BlackBoxProtocol.log("Robot Initialized");
+		
 		// Initialize Smart Dashboard
 		try {
 			SmartDashboard.getNumber("Auto Movement Time");
